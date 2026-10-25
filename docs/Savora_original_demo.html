@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Savora | FoodLoop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:ital,wght@1,700&display=swap" rel="stylesheet">
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{--ink:#0b3b2a;--deep:#08301f;--lime:#c9f45e;--cream:#fffdf6;--paper:#f4f3ec;--coral:#ff6f4e;--mut:#5d6b63;--line:#e4e2d6;--ok:#117a4a;--warn:#a8670a}
+*{box-sizing:border-box;margin:0}
+body{font:400 16px/1.5 "DM Sans",system-ui,sans-serif;color:var(--ink);background:var(--cream)}
+a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}
+/* form controls get an explicit colour; without it, phones in dark mode draw white text on white (empty-looking dropdowns, invisible Log in) */
+button,input,select,textarea{color:var(--ink)}option{color:var(--ink);background:#fff}
+em{font-family:Fraunces,Georgia,serif;font-style:italic;font-weight:700;color:var(--coral)}
+:focus-visible{outline:3px solid var(--coral);outline-offset:2px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:22px}
+.leaf{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:var(--lime);color:var(--ink);font-size:18px}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ok);margin-bottom:14px}
+.btn{border:1px solid var(--line);background:#fff;color:var(--ink);padding:14px 22px;border-radius:12px;font-weight:500}
+.btn.lime{background:var(--lime);border-color:var(--lime);font-weight:700}.btn.wide{width:100%}
+.btn:hover{filter:brightness(.96)}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:18px 5vw;border-bottom:1px solid var(--line);gap:16px}
+.nav nav{display:flex;gap:22px;font-size:14px;color:var(--mut)}.nav-r{display:flex;align-items:center;gap:20px}.link{font-weight:500;font-size:14px}
+.hero{display:grid;grid-template-columns:1fr 1fr;gap:5vw;padding:7vh 5vw;align-items:center}
+h1{font-size:clamp(46px,7vw,92px);line-height:.95;letter-spacing:-.04em;margin-bottom:28px}
+.lead{color:var(--mut);font-size:18px;max-width:52ch}
+.cta{display:flex;flex-wrap:wrap;gap:12px;margin:30px 0}
+.note{border-top:1px solid var(--line);padding-top:16px;font-size:14px;color:var(--mut);max-width:48ch}.note b{color:var(--ink)}
+.photo{position:relative;aspect-ratio:1/1.05;border-radius:6px 160px 6px 6px;background:radial-gradient(circle at 30% 30%,#e8503d 0 8%,transparent 9%),radial-gradient(circle at 60% 25%,#8bc34a 0 12%,transparent 13%),radial-gradient(circle at 40% 75%,#f6a21e 0 15%,transparent 16%),linear-gradient(135deg,#243b2f,#3e5a3d);box-shadow:0 30px 60px #0b3b2a22}
+.tag{position:absolute;right:0;bottom:0;width:62%;background:var(--ink);color:#fff;padding:18px 20px;font-weight:700}.tag small{display:block;color:var(--lime);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px}
+.choose{display:grid;grid-template-columns:1.1fr 1.4fr 1.4fr;background:var(--ink);color:#fff;border-top:1px solid #ffffff22}
+.choose h3{padding:34px 5vw;font-size:26px;color:var(--lime)}.choose h3 em{color:var(--lime)}
+.choose button{background:none;border:0;border-left:1px solid #ffffff22;color:#fff;text-align:left;padding:34px 28px;font-size:20px;font-weight:700}
+.choose button:hover{background:#ffffff0d}.choose small{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:400;opacity:.65;margin-bottom:6px}
+.how{background:var(--deep);color:#fff;padding:12vh 5vw 8vh}.lime-t{color:var(--lime)}
+.how h2{font-size:clamp(34px,5vw,60px);letter-spacing:-.03em;line-height:1.05;max-width:16ch;margin-bottom:60px;font-weight:400}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid #ffffff2a}
+.steps article{padding:28px 24px 32px 0;border-right:1px solid #ffffff2a;margin-right:24px}.steps article:last-child{border:0}
+.steps i{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:var(--lime);color:var(--ink);font-style:normal;font-weight:700;margin-bottom:56px}
+.steps h4{font-size:20px;font-weight:500;margin-bottom:8px}.steps p{font-size:14px;opacity:.7}
+.disc{margin-top:36px;padding-left:18px;border-left:3px solid var(--lime);font-size:13px;opacity:.85;max-width:80ch}
+.care{display:grid;grid-template-columns:1fr 1fr;gap:6vw;padding:12vh 5vw;align-items:center}
+.photo2{position:relative;aspect-ratio:1/1.2;border-radius:160px 12px 12px 12px;background:linear-gradient(160deg,#7a4a2e,#b9895a 45%,#d8742a)}
+.badge{position:absolute;right:-20px;bottom:30px;width:150px;height:150px;border-radius:50%;background:var(--lime);display:grid;place-items:center;text-align:center;font-weight:700;border:8px solid var(--cream)}
+.dk{font-size:clamp(34px,4.6vw,56px);letter-spacing:-.03em;line-height:1.05;font-weight:400;margin-bottom:22px}
+.checks{list-style:none;padding:0;margin-top:24px;display:grid;gap:10px;font-size:15px}.checks li:before{content:"\2713";color:var(--ok);font-weight:700;margin-right:12px}
+footer{background:var(--deep);color:#fff;padding:60px 5vw 28px;display:grid;grid-template-columns:2fr 1fr 1fr;gap:30px;font-size:14px}
+footer h5{font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px}footer div a{display:block;opacity:.65;margin-bottom:8px}
+footer>p{opacity:.6;font-size:12px;border-top:1px solid #ffffff22;padding-top:18px;grid-column:span 1}footer>p:last-child{text-align:right;grid-column:3}footer>p:nth-of-type(1){grid-column:1/3}
+/* admin */
+#admin{display:grid;grid-template-columns:270px 1fr;min-height:100vh;background:var(--paper)}#admin[hidden],[hidden]{display:none!important}
+aside{background:var(--deep);color:#fff;padding:24px 16px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.side-top{display:flex;justify-content:space-between;align-items:center;padding-bottom:20px;border-bottom:1px solid #ffffff1f}.adm{font-size:11px;color:var(--lime);font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+#sidenav{display:grid;gap:4px;margin-top:26px;flex:1;align-content:start}
+#sidenav a{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-left:3px solid transparent;font-size:14px;opacity:.75}
+#sidenav a.on{background:#ffffff14;border-color:var(--lime);opacity:1}
+.cnt{background:var(--lime);color:var(--ink);font-size:11px;font-weight:700;border-radius:99px;min-width:22px;text-align:center;padding:1px 6px}
+.who{border-top:1px solid #ffffff1f;padding-top:16px;display:grid;gap:4px;font-size:13px}.who small,.who a{opacity:.6;font-size:12px}
+main{padding:34px 4vw;min-width:0}
+.ph{display:flex;justify-content:space-between;gap:20px;align-items:flex-end;margin-bottom:26px;flex-wrap:wrap}
+.ph h1{font-size:clamp(30px,4vw,46px);letter-spacing:-.03em;margin:0 0 6px;font-weight:400;line-height:1.05}.ph p{color:var(--mut);font-size:14px}.ph time{font-size:13px;font-weight:700;color:var(--ink)}
+.panel{background:var(--cream);border:1px solid var(--line)}
+.bar{display:flex;gap:10px;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tabs{display:flex;gap:20px}.tabs button{background:none;border:0;border-bottom:2px solid transparent;padding:10px 4px;color:var(--mut);font-weight:500;font-size:14px}.tabs .on{color:var(--ink);border-color:var(--ok);font-weight:700}
+.bar input,.bar select{padding:10px 12px;border:1px solid var(--line);background:#fff;border-radius:6px;font:inherit;font-size:14px;min-width:200px}
+.scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:13px;min-width:720px}
+th{text-align:left;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);padding:12px 18px;background:#f6f5ee}td{padding:16px 18px;border-top:1px solid var(--line);vertical-align:middle}
+td small{display:block;color:var(--mut);font-size:11px}td b{font-weight:700}
+.pill{display:inline-block;padding:3px 9px;font-size:11px;font-weight:700;border:1px solid;border-radius:3px}
+.s-Verified,.s-Completed,.s-Available{background:#e5f5ea;color:var(--ok);border-color:#bfe3cb}
+.s-Pending,.s-Under-Review,.s-Flagged{background:#fff3d9;color:var(--warn);border-color:#f1d9a2}
+.s-Suspended,.s-Rejected{background:#fde7e2;color:#b3321c;border-color:#f3c0b5}
+.s-Matched,.s-Scheduled-for-Pickup,.s-Submitted{background:#e6eefc;color:#2d5ab0;border-color:#c4d4f2}
+.act{display:flex;gap:6px;justify-content:flex-end}.sm{padding:7px 12px;font-size:12px;border-radius:4px;border:1px solid var(--line);background:#fff;color:var(--ink);font-weight:700}
+.sm.ok{background:var(--ok);color:#fff;border-color:var(--ok)}.sm.warn{background:#fff3d9;border-color:#f1d9a2}.sm.bad{color:#b3321c;border-color:#f3c0b5}
+.split{display:grid;grid-template-columns:300px 1fr}
+.list button{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);border-left:3px solid transparent;padding:16px 18px;color:var(--ink)}
+.list button.on{background:#f1f0e6;border-left-color:var(--ok)}.list small{display:block;color:var(--mut);font-size:11px}.list .k{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ok);font-weight:700}
+.detail{border-left:1px solid var(--line);min-width:0}.dh{padding:22px 24px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.dh h2{font-size:28px;font-weight:400;letter-spacing:-.02em}
+.kv{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);margin:12px 24px 24px}.kv div{padding:12px 16px;border-bottom:1px solid var(--line)}.kv div:nth-child(odd){border-right:1px solid var(--line)}.kv small{display:block;font-size:11px;color:var(--mut)}.kv b{font-size:14px}
+.sec{padding:22px 0 0}.sec h3{margin:0 24px;font-size:15px;display:flex;gap:12px;align-items:center}.sec h3 i{width:30px;height:30px;border-radius:50%;background:var(--lime);display:grid;place-items:center;font-family:Fraunces,serif;font-size:13px}
+.crit{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);margin:12px 24px 24px}.crit div{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center;font-size:13px}.crit div:nth-child(odd){border-right:1px solid var(--line)}
+.crit i{flex:none;width:28px;height:28px;border-radius:50%;border:1px solid #bfe3cb;background:#e5f5ea;color:var(--ok);display:grid;place-items:center;font-style:normal}.crit i.no{background:#fde7e2;border-color:#f3c0b5;color:#b3321c}.crit small{display:block;font-size:11px;color:var(--mut)}
+.alert{margin:20px 24px 0;padding:14px 16px;background:#fdece6;border-left:3px solid var(--coral);font-size:12px;color:#7a2d1b}
+.foot{display:flex;gap:10px;justify-content:flex-end;padding:18px 24px;border-top:1px solid var(--line);flex-wrap:wrap}.foot .sm{padding:11px 18px;font-size:13px}
+.files button{display:flex;width:100%;gap:12px;align-items:center;text-align:left;padding:14px 24px;background:none;border:0;border-top:1px solid var(--line);color:var(--ink)}.files button.on{background:#fffaea}.files small{color:var(--mut);display:block;font-size:11px}
+.doc{background:#e9e8df;padding:24px}.sheet{background:#fff;max-width:460px;margin:auto;padding:34px;box-shadow:0 8px 24px #0002}.sheet h3{font-family:Fraunces,serif;font-style:italic;font-size:30px;margin:6px 0 20px;font-weight:700}.sheet dl{display:grid;grid-template-columns:1fr 1.6fr;font-size:12px;gap:0}.sheet dt,.sheet dd{margin:0;padding:11px 0;border-top:1px solid var(--line)}.sheet dt{color:var(--mut)}
+.empty{padding:60px 24px;text-align:center;color:var(--mut)}
+/* modal */
+.modal{position:fixed;inset:0;background:#06241acc;backdrop-filter:blur(6px);display:grid;place-items:center;padding:16px;z-index:20}
+.modal form{position:relative;background:var(--cream);border-radius:28px;padding:36px;width:min(560px,100%);max-height:94vh;overflow:auto;display:grid;gap:14px}
+.modal h2{font-size:36px;font-weight:400;letter-spacing:-.03em;line-height:1.05}.sub{color:var(--mut);font-size:14px}
+.modal label{display:grid;gap:6px;font-size:13px;font-weight:700}.modal input,.modal textarea{padding:14px;border:1px solid var(--line);border-radius:10px;background:#fff;font:inherit;font-weight:400;font-size:14px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}.x{position:absolute;top:18px;right:18px;width:38px;height:38px;border-radius:50%;border:0;background:var(--paper);font-size:22px}
+.err{color:#b3321c;font-size:13px;min-height:1em}.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:14px 22px;border-radius:10px;z-index:30;font-size:14px}
+@media(max-width:900px){.hero,.care{grid-template-columns:1fr}.choose{grid-template-columns:1fr}.choose button{border-left:0;border-top:1px solid #ffffff22}.steps{grid-template-columns:1fr 1fr}.nav nav{display:none}footer{grid-template-columns:1fr 1fr}footer>p{grid-column:1/-1!important;text-align:left!important}
+#admin{grid-template-columns:1fr}aside{position:static;height:auto}#sidenav{display:flex;overflow-x:auto;margin-top:12px}#sidenav a{white-space:nowrap;gap:10px}.who{display:none}.split{grid-template-columns:1fr}.detail{border-left:0;border-top:1px solid var(--line)}.two,.kv,.crit{grid-template-columns:1fr}.kv div,.crit div{border-right:0!important}}
+@media(prefers-reduced-motion:no-preference){.modal form{animation:pop .22s ease-out}@keyframes pop{from{transform:translateY(12px);opacity:0}}}
+/* workspaces */
+.btn.green{background:#0f7a43;color:#fff;border-color:#0f7a43}.btn:disabled{opacity:.55;cursor:default}.link{background:none;border:0}
+#ws{min-height:100vh;background:var(--cream)}.wrap{padding:0 4vw 60px;max-width:1280px;margin:auto}
+.whero{position:relative;display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;margin:28px 4vw 24px;padding:44px 44px 48px;background:linear-gradient(120deg,#08301f,#0f4a30 60%,#1e5a2c);color:#fff;border-radius:6px 150px 6px 6px;box-shadow:0 24px 50px #0b3b2a33}
+.whero h1{font-size:clamp(40px,6vw,72px);line-height:.98;margin:8px 0 16px}.whero p:not(.eyebrow){opacity:.75;max-width:48ch;font-size:14px}.whero .pend{color:var(--lime);opacity:1!important;margin-top:10px}
+.wside{display:grid;gap:12px;align-content:end;min-width:260px;position:relative}.chipb{display:flex;gap:12px;align-items:center;text-align:left;background:#ffffff1c;border:1px solid #ffffff33;color:#fff;border-radius:10px;padding:10px 14px}
+.chipb i{width:34px;height:34px;border-radius:8px;background:var(--lime);color:var(--ink);display:grid;place-items:center;font-style:normal}.chipb span{flex:1}.chipb b{display:block;font-size:13px}.chipb small{opacity:.7;font-size:12px}
+.menu{position:absolute;top:calc(100% + 6px);left:0;right:0;background:#fff;color:var(--ink);border-radius:10px;box-shadow:0 14px 40px #0004;z-index:5;padding:6px;display:grid}.menu a,.menu button{background:none;border:0;text-align:left;padding:10px 12px;font-size:13px;border-radius:6px}.menu a:hover,.menu button:hover{background:var(--paper)}.menu hr{border:0;border-top:1px solid var(--line);margin:4px 0;width:100%}
+.sw{position:relative}.sw .chipb{width:100%}
+.wsearch{padding:14px 16px;border-radius:10px;border:0;font:inherit;font-size:14px;width:100%}
+.wal{margin:0 0 40px}.wh{font-size:clamp(28px,3.4vw,40px);font-weight:400;letter-spacing:-.02em;margin:0 0 20px}.ph .loc{color:#b3321c;font-size:12px;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:20px}
+.fc{background:#fff;border:1px solid var(--line);display:flex;flex-direction:column}.fc[data-sel]{cursor:pointer}.fc.on{outline:2px solid var(--ok)}
+.img{height:190px;position:relative}.tg{position:absolute;left:12px;bottom:12px;background:var(--lime);font-size:11px;font-weight:700;padding:6px 10px}
+.c-Prepared-meals{background:radial-gradient(circle at 30% 40%,#e8503d 0 12%,transparent 13%),radial-gradient(circle at 62% 50%,#9ccf45 0 16%,transparent 17%),linear-gradient(135deg,#d9822b,#7a9a3a)}
+.c-Bakery{background:radial-gradient(ellipse at 40% 55%,#e2b678 0 22%,transparent 23%),radial-gradient(ellipse at 68% 45%,#c68a4a 0 18%,transparent 19%),linear-gradient(135deg,#5c3a1e,#a8743a)}
+.c-Fresh-produce{background:radial-gradient(circle at 30% 45%,#7bc043 0 15%,transparent 16%),radial-gradient(circle at 60% 55%,#f6a21e 0 17%,transparent 18%),linear-gradient(135deg,#3f8f2a,#c24a2e)}
+.c-Packaged-food{background:repeating-linear-gradient(90deg,#c9b27a 0 38px,#8fa1ad 38px 76px),#999}
+.fb{padding:18px;display:grid;gap:4px;flex:1;align-content:start}.k{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ok);font-weight:700}.fb h3{font-size:22px;font-weight:400;margin-bottom:6px}
+.fb dl{margin:0 0 10px}.fb dl div{display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-top:1px solid var(--line);font-size:12px}.fb dt{color:var(--mut)}.fb dd{margin:0;font-weight:700;text-align:right}.fb .sub{font-size:12px;color:var(--mut)}
+.mr{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:6px}
+.trk{background:var(--deep);color:#fff;padding:34px;margin-top:36px}.trk header{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}.trk h2{font-size:34px;font-weight:400;margin:0 0 26px}
+.trk .pill{align-self:flex-start;background:var(--lime);color:var(--ink);border-color:var(--lime)}
+.trk ol{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(7,1fr);gap:8px}.trk li{position:relative;display:grid;gap:4px;align-content:start;font-size:12px;padding-right:8px}
+.trk li:before{content:"";position:absolute;left:30px;right:0;top:14px;border-top:1px solid #ffffff33}.trk li:last-child:before{display:none}
+.trk li i{width:29px;height:29px;border-radius:50%;border:1px solid #ffffff55;display:grid;place-items:center;font-style:normal;margin-bottom:10px;background:var(--deep);position:relative;z-index:1}
+.trk li.done i{background:var(--lime);color:var(--ink);border-color:var(--lime)}.trk li.now i{background:var(--lime);color:var(--ink);box-shadow:0 0 0 5px #c9f45e44}.trk li small{opacity:.6}.trk li:not(.done):not(.now) b{opacity:.7}
+.tn{margin-top:26px;padding-top:18px;border-top:1px solid #ffffff22;font-size:12px;opacity:.7}
+.reqs{margin-top:32px;border:1px solid var(--line);background:#fff}.reqs h3{padding:16px 20px;font-size:16px;border-bottom:1px solid var(--line)}.rq{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:14px 20px;border-top:1px solid var(--line);flex-wrap:wrap}.rq small{display:block;color:var(--mut)}
+.doneb{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-top:0;padding:16px 24px}
+.wfoot{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:var(--mut)}
+.box{max-height:94vh}.modal .box .chk{display:flex;gap:10px;align-items:flex-start;font-weight:400;font-size:12px}.modal .chk input{margin-top:3px}
+.modal select{padding:14px;border:1px solid var(--line);border-radius:10px;background:#fff;font:inherit;font-weight:400;font-size:14px}
+.sum{display:grid;gap:2px;padding:12px 14px;background:var(--paper);border-radius:8px;font-size:13px}.sum span{color:var(--mut)}
+.ok-c{display:grid;gap:12px;justify-items:center;text-align:center}.okb{width:64px;height:64px;border-radius:50%;background:var(--lime);display:grid;place-items:center;font-size:26px}
+.lrow{display:flex;gap:10px;align-items:flex-end}.lrow label{flex:1}.lrow .btn{padding:13px 18px}
+.side-top+nav~.who a{display:block}
+@media(max-width:900px){.trk ol{grid-template-columns:1fr}.trk li:before{display:none}.whero{padding:28px 22px;border-radius:6px 70px 6px 6px}}
+</style>
+</head>
+<body>
+
+<div id="site">
+  <header class="nav">
+    <a class="logo" href="#/"><span class="leaf">&#10049;</span>savora</a>
+    <nav><a href="#how">How it works</a><a href="#impact">Impact</a></nav>
+    <div class="nav-r"><button class="link" data-login>Log in</button><button class="btn lime" data-join="establishment">Sign up</button></div>
+  </header>
+
+  <section class="hero">
+    <div>
+      <p class="eyebrow">Organized food redistribution</p>
+      <h1>Good food, kept in <em>motion.</em></h1>
+      <p class="lead">Savora helps food establishments document eligible surplus and connect with nearby organizations, so more food reaches communities instead of bins.</p>
+      <div class="cta">
+        <button class="btn lime" data-join="establishment">Register as a food establishment</button>
+        <button class="btn ghost" data-join="recipient">Join as a recipient organization</button>
+      </div>
+      <p class="note"><b>Clear records. Local coordination.</b><br>No inflated promises, just a more usable path from surplus to support.</p>
+    </div>
+    <div class="photo"><div class="tag"><small>Today's surplus</small>Prepared, documented, ready to share.</div></div>
+  </section>
+
+  <section class="choose">
+    <h3><em>Choose your place in the loop.</em></h3>
+    <button data-join="establishment"><small>Food establishments</small>List eligible surplus</button>
+    <button data-join="recipient"><small>Recipient organizations</small>Find available food</button>
+  </section>
+
+  <section class="how" id="how">
+    <p class="eyebrow lime-t">From surplus to support</p>
+    <h2>One visible handoff, from <em>listing to delivery.</em></h2>
+    <div class="steps">
+      <article><i>1</i><h4>Submit the details</h4><p>Food category, quantity, packaging condition, storage, and the available pickup window are recorded in one place.</p></article>
+      <article><i>2</i><h4>Basic screening</h4><p>Savora checks the submitted condition, storage, and expiration or best-before information for completeness.</p></article>
+      <article><i>3</i><h4>Find a suitable match</h4><p>Nearby organizations review the details and request food that fits their needs, capacity, and location.</p></article>
+      <article><i>4</i><h4>Coordinate the handoff</h4><p>Donors, recipients, and authorized volunteers agree on pickup or delivery while Savora keeps the record.</p></article>
+    </div>
+    <p class="disc"><b>Screening is not certification.</b> Savora documents user-provided information and applies basic checks. It does not inspect food, guarantee safety, or replace professional assessment.</p>
+  </section>
+
+  <section class="care" id="impact">
+    <div class="photo2"><span class="badge">Shared with care</span></div>
+    <div>
+      <p class="eyebrow">Less waste. More care.</p>
+      <h2 class="dk">Built around the people making the handoff happen.</h2>
+      <p class="lead">The platform organizes the record; people move the food. Donors, recipients, and authorized volunteers coordinate the practical details together, with a clear trail of what was offered and what happened next.</p>
+      <ul class="checks"><li>Basic screening and documentation</li><li>Needs- and location-aware matching</li><li>Timestamped handoff records</li></ul>
+    </div>
+  </section>
+
+  <footer>
+    <a class="logo" href="#/"><span class="leaf">&#10049;</span>savora</a>
+    <div><h5>Explore</h5><a href="#how">How it works</a><a href="#impact">Community impact</a></div>
+    <div><h5>Join in</h5><a href="#" data-join="establishment">Donate food</a><a href="#" data-join="recipient">Receive food</a></div>
+    <p>&copy; 2026 Savora Network</p><p>Good food. Shared well.</p>
+  </footer>
+</div>
+
+<div id="admin" hidden>
+  <aside>
+    <div class="side-top"><a class="logo" href="#/"><span class="leaf">&#10049;</span>savora</a><span class="adm">Admin</span></div>
+    <nav id="sidenav"></nav>
+    <div class="who"><b>Jordan Lee</b><small>System administrator</small><a href="#/donor">Donor workspace</a><a href="#/recipient">Recipient workspace</a><a href="#/volunteer">Volunteer workspace</a><a href="#/">&larr; Public website</a></div>
+  </aside>
+  <main id="view"></main>
+</div>
+
+<div id="ws" hidden></div>
+<div id="dlg" class="modal" hidden></div>
+<div id="modal" class="modal" hidden>
+  <form id="joinForm" novalidate>
+    <button type="button" class="x" id="closeModal" aria-label="Close">&times;</button>
+    <p class="eyebrow" id="mKicker"></p>
+    <h2 id="mTitle"></h2>
+    <p class="sub" id="mSub"></p>
+    <label>Organization name<input name="org" required placeholder="e.g. Green Fork Kitchen"></label>
+    <div class="two">
+      <label>Your name<input name="name" required placeholder="Full name"></label>
+      <label>Email<input name="email" type="email" required placeholder="you@organization.org"></label>
+    </div>
+    <label id="mAreaL">Who do you support?<textarea name="info" rows="3"></textarea></label>
+    <p class="err" id="mErr"></p>
+    <button class="btn lime wide" type="submit">Request to join</button>
+  </form>
+</div>
+<div id="toast" class="toast" hidden></div>
+<script>
+/* Savora / FoodLoop front end (single file: HTML + CSS + JS).
+   Data is mocked and kept in localStorage; swap `db` for API calls later.
+
+   DSA MAP (for the defense):
+   - Array ............. db.donations, db.users.*, db.docs, STATUSES, STAGES, and each donation's `requests` and `hist`
+   - Hash map (object)  db.users (role -> list), db.acct (role -> logged-in id), VIEWS (route -> function), LBL / KIND / ROLEOF
+   - Linear search ..... Array.find / filter / some / indexOf, O(n): lookups, search boxes, status filters
+   - Queue (FIFO idea)  admin Verification queue = donations in 'Under Review' (see queue())
+   - State machine ..... a donation moves along STAGES (Submitted -> ... -> Completed); setStatus() performs each move
+   - Append-only log ... x.hist stores every status change with a time (the audit trail)
+   - Serialization ..... JSON.stringify / JSON.parse save and load `db` in localStorage
+   Not implemented yet: an automatic matching / ranking algorithm (see OVERVIEW.md). */
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const cls = s => s.replace(/ /g, '-');
+// DSA: array used as a fixed list of allowed statuses. It feeds the admin status filter (one pass, O(k)).
+const STATUSES = ['Submitted', 'Under Review', 'Available', 'Matched', 'Scheduled for Pickup', 'Completed', 'Rejected', 'Flagged'];
+
+// DSA: the starting data is nested hash maps (objects) holding arrays of records.
+// acct = hash map role -> id of the logged-in account; users = hash map role -> array of user records.
+const seed = {
+  acct: { donor: '0001', recipient: '1001', volunteer: '2001' },
+  users: {
+    donors: [
+      { id: '0001', org: 'Green Table Kitchen', loc: 'Riverside', contact: 'Maya Chen', phone: '+1 555 0142', email: 'maya@greentable.example', status: 'Verified' },
+      { id: '0002', org: 'Morning Bakehouse', loc: 'Old Town', contact: 'Owen Baker', phone: '+1 555 0178', email: 'owen@morningbake.example', status: 'Pending' },
+      { id: '0003', org: 'Northside Grocers', loc: 'Northside', contact: 'Leah Morris', phone: '+1 555 0191', email: 'leah@northside.example', status: 'Verified' }],
+    recipients: [
+      { id: '1001', org: 'Hope Community', loc: 'Eastgate', contact: 'Sam Ortiz', phone: '+1 555 0113', email: 'sam@hope.example', status: 'Verified' },
+      { id: '1002', org: 'West End Pantry', loc: 'West End', contact: 'Ana Reyes', phone: '+1 555 0127', email: 'ana@westend.example', status: 'Verified' },
+      { id: '1003', org: 'Harbor Youth Center', loc: 'Harbor', contact: 'Dev Patel', phone: '+1 555 0155', email: 'dev@harbor.example', status: 'Pending' }],
+    volunteers: [
+      { id: '2001', org: 'Ria Santos', loc: 'Riverside', contact: 'Ria Santos', phone: '+1 555 0166', email: 'ria@mail.example', status: 'Verified' },
+      { id: '2002', org: 'Tomas Lee', loc: 'Old Town', contact: 'Tomas Lee', phone: '+1 555 0102', email: 'tomas@mail.example', status: 'Pending' }]
+  },
+  docs: [
+    { id: 'REG-0184', kind: 'Food establishment', name: 'Morning Bakehouse', owner: 'Owen Baker', email: 'owen@morningbake.example', loc: '8 Market Lane, Old Town', ref: 'FB-2025-8814', when: 'Today, 9:16 AM', state: 'Pending',
+      files: [['Food business registration.pdf', '2 pages'], ['Kitchen inspection record.jpg', 'Image'], ['Insurance certificate.pdf', '1 page']] },
+    { id: 'REG-0183', kind: 'Independent donor', name: 'Priya Nair', owner: 'Priya Nair', email: 'priya@mail.example', loc: '14 Elm Court, Eastgate', ref: 'ID-2025-4410', when: 'Yesterday, 4:28 PM', state: 'Pending',
+      files: [['Government ID.jpg', 'Image'], ['Proof of address.pdf', '1 page']] },
+    { id: 'REG-0181', kind: 'Food establishment', name: 'Kindred Restaurant', owner: 'Lena Cruz', email: 'lena@kindred.example', loc: '2 Pier Road, Harbor', ref: 'FB-2025-7702', when: '16 Jun, 2:03 PM', state: 'Pending',
+      files: [['Food business registration.pdf', '2 pages'], ['Insurance certificate.pdf', '1 page']] }
+  ],
+  donations: [
+    d('PL-2048', 'Green Table Kitchen', 'Awaiting match', 'Vegetable rice bowls', 'Prepared meals', '18 Jun 2025', '30 portions', 'Under Review', '28 River Street, rear entrance', 'Today, 4:30-6:30 PM', 'Freshly prepared', 'Sealed food-safe containers', 'Refrigerated at 4°C', '26 Oct 2026, 9:00 PM', '3:42 PM'),
+    d('PL-2047', 'Morning Bakehouse', 'Hope Community', 'Mixed bakery trays', 'Bakery', '18 Jun 2025', '42 portions', 'Scheduled for Pickup'),
+    d('PL-2050', 'Green Table Kitchen', 'Awaiting match', 'Garden lunch boxes', 'Prepared meals', '18 Jun 2025', '32 portions', 'Available', 'Riverside · rear entrance', 'Today · 4:30–6:30 PM', 'Freshly prepared', 'Sealed food-safe containers', 'Refrigerated', '19 Jun 2025'),
+    d('PL-2051', 'Morning Bakehouse', 'Awaiting match', 'Bread & pastry trays', 'Bakery', '18 Jun 2025', '48 portions', 'Available', 'Old Town · bakery counter', 'Today · 6:00–8:00 PM', 'Baked this morning', 'Covered trays', 'Room temperature', '19 Jun 2025'),
+    d('PL-2052', 'Northside Grocers', 'Awaiting match', 'Seasonal fruit crates', 'Fresh produce', '18 Jun 2025', '60 portions', 'Available', 'Northside · loading bay', 'Tomorrow · 8:00–9:00 AM', 'Fresh', 'Original sealed packaging', 'Cool and dry', '22 Jun 2025'),
+    d('PL-2053', 'Community Market', 'Awaiting match', 'Mixed pantry boxes', 'Packaged food', '18 Jun 2025', '40 portions', 'Available', 'Market District · service desk', 'Tomorrow · 10:00–11:00 AM', 'Sealed and unopened', 'Original sealed packaging', 'Mixed storage', '30 Sep 2025'),
+    d('PL-2054', 'Common Ground Café', 'Awaiting match', 'Roast chicken rice bowls', 'Prepared meals', '18 Jun 2025', '24 portions', 'Available', 'West End · café entrance', 'Today · 5:45–7:15 PM', 'Freshly prepared', 'Sealed food-safe containers', 'Hot-held', '18 Jun 2025'),
+    d('PL-2046', 'Northside Grocers', 'West End Pantry', 'Seasonal produce', 'Fresh produce', '17 Jun 2025', '6 crates', 'Matched'),
+    d('PL-2045', 'Common Ground Café', 'Hope Community', 'Packed sandwiches', 'Prepared meals', '16 Jun 2025', '18 portions', 'Completed'),
+    d('PL-2044', 'Community Market', 'Harbor Youth Center', 'Pantry staples', 'Packaged food', '15 Jun 2025', '4 boxes', 'Completed'),
+    d('PL-2043', 'Kindred Restaurant', 'Awaiting match', 'Vegetable soup', 'Prepared meals', '15 Jun 2025', '24 portions', 'Available'),
+    d('PL-2042', 'Green Table Kitchen', 'Not yet available', 'Fruit cups', 'Prepared meals', '14 Jun 2025', '20 portions', 'Under Review', '28 River Street, rear entrance', 'Today, 3:00-5:00 PM', 'Freshly prepared', 'Sealed cups', 'Refrigerated at 4°C', '16 Jun 2025, 6:00 PM', '2:18 PM'),
+    d('PL-2039', 'Morning Bakehouse', 'Not yet available', 'Sourdough and rolls', 'Bakery', '17 Jun 2025', '36 portions', 'Under Review', '8 Market Lane', 'Today, 5:00-7:00 PM', 'Baked this morning', 'Paper bags', 'Room temperature', '', '6:05 PM')
+  ]
+};
+// DSA: record factory. One donation = one object holding a `requests` array (recipients asking for it)
+// and a `hist` array (status log). `dist` is only a placeholder for distance until real location data exists.
+function d(id, donor, recipient, food, cat, date, qty, status, loc = '', pick = '', cond = 'Freshly prepared', pack = 'Sealed containers', stor = 'Refrigerated', exp = '19 Jun 2025', at = '') {
+  return { id, donor, recipient, food, cat, date, qty, status, loc, pick, cond, pack, stor, exp, at, notes: '', requests: [], hist: [[status, 'Recorded earlier']], vol: null, dist: (1 + +id.slice(-1) * 0.4).toFixed(1) + ' km' };
+}
+
+seed.donations.find(x => x.id === 'PL-2047').vol = 'Ria Santos';
+seed.donations.find(x => x.id === 'PL-2046').vol = null;
+seed.donations.find(x => x.id === 'PL-2050').requests.push({ id: 'R1', org: 'Hope Community', plan: 'Two volunteers will collect by van.', state: 'Pending' });
+seed.donations.find(x => x.id === 'PL-2043').requests.push({ id: 'R2', org: 'West End Pantry', plan: '', state: 'Pending' });
+// DSA: persistence. JSON.parse reads the saved database back; JSON.parse(JSON.stringify(seed)) makes a deep copy, O(size of data).
+let db;
+try { db = JSON.parse(localStorage.getItem('savora-db')); } catch (e) { db = null; }
+if (!db) db = JSON.parse(JSON.stringify(seed));
+const save = () => { try { localStorage.setItem('savora-db', JSON.stringify(db)); } catch (e) {} };
+
+const ui = { tab: 'donors', docId: 'REG-0184', docFile: 0, docFilter: 'All', qId: null, q: '', st: '' };
+// DSA: isExpired() = date comparison, O(1). Parses the text, drops the time of day, and compares with today at 00:00,
+// so food that expires today still passes. A date that cannot be read counts as "not expired" (the missing-field check handles blanks).
+const isExpired = v => {
+  const t = String(v || '').split(',')[0].trim(), m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(t);
+  const d = m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date(t), n = new Date(); n.setHours(0, 0, 0, 0);
+  return !isNaN(d) && d < n;
+};
+// DSA: QUEUE idea. Every donation waiting for admin screening is in the 'Under Review' state; once the admin
+// approves, rejects or flags it, the status changes and it leaves the queue. Cost: one filter pass, O(n).
+// Note: addDonation() uses unshift (newest first), so display order is newest-first. For strict FIFO, order by submission time.
+const queue = () => db.donations.filter(x => x.status === 'Under Review');
+const pendingDocs = () => db.docs.filter(x => x.state === 'Pending');
+
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.hidden = false;
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 2600);
+}
+
+/* ---------- views ---------- */
+const NAV = [['users', 'User management', () => 0], ['documents', 'Document review', () => pendingDocs().length],
+  ['donations', 'Donation records', () => 0], ['queue', 'Verification queue', () => queue().length]];
+
+function head(kicker, title, sub) {
+  return `<div class="ph"><div><p class="eyebrow">${kicker}</p><h1>${title}</h1><p>${sub}</p></div><div><small>Savora operations</small><br><time>${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</time></div></div>`;
+}
+const pill = s => `<span class="pill s-${cls(s)}">${esc(s)}</span>`;
+
+// DSA: db.users[ui.tab] is a hash-map lookup, O(1); .map() then walks that list once, O(n). Admin approve/suspend finds one user with find(), O(n).
+function usersView() {
+  const rows = db.users[ui.tab];
+  return head('People and organizations', 'User management', 'Review account details and manage access across the redistribution network.') +
+  `<div class="panel"><div class="bar"><div class="tabs">${['donors', 'recipients', 'volunteers'].map(t =>
+    `<button class="${ui.tab === t ? 'on' : ''}" data-tab="${t}">${t[0].toUpperCase() + t.slice(1)} ${db.users[t].length}</button>`).join('')}</div></div>
+  <div class="scroll"><table><thead><tr><th>Organization</th><th>Location</th><th>Contact details</th><th>Verification</th><th></th></tr></thead><tbody>
+  ${rows.map(u => `<tr><td><b>${esc(u.org)}</b><small>Account #${u.id}</small></td><td>${esc(u.loc)}</td>
+  <td><b>${esc(u.contact)} · ${esc(u.phone)}</b><small>${esc(u.email)}</small></td><td>${pill(u.status)}</td>
+  <td><div class="act">${u.status === 'Pending' ? `<button class="sm ok" data-user="${u.id}" data-do="Verified">Approve</button>` : ''}
+  <button class="sm" data-user="${u.id}" data-do="${u.status === 'Suspended' ? 'Verified' : 'Suspended'}">${u.status === 'Suspended' ? 'Reinstate' : 'Suspend'}</button></div></td></tr>`).join('')}
+  </tbody></table></div></div>`;
+}
+
+// DSA: filter() builds the list for the chosen tab (O(n)); find() picks the open registration (O(n)).
+function docsView() {
+  const list = db.docs.filter(x => ui.docFilter === 'All' || (ui.docFilter === 'Establishments') === (x.kind === 'Food establishment'));
+  const cur = db.docs.find(x => x.id === ui.docId && list.includes(x)) || list[0];
+  const tabs = ['All', 'Establishments', 'Independent'].map(t => `<button class="${ui.docFilter === t ? 'on' : ''}" data-dfilter="${t}">${t}</button>`).join('');
+  let right = '<div class="empty">No registrations in this view.</div>';
+  if (cur) {
+    const f = cur.files[ui.docFile] || cur.files[0];
+    right = `<div class="dh"><div><p class="eyebrow">${esc(cur.kind)} · ${cur.id}</p><h2>${esc(cur.name)}</h2><small>${esc(cur.owner)} · ${esc(cur.email)}</small></div>${pill(cur.state === 'Pending' ? 'Pending' : cur.state)}</div>
+    <div class="kv"><div><small>Location</small><b>${esc(cur.loc)}</b></div><div><small>Registration reference</small><b>${esc(cur.ref)}</b></div><div><small>Submitted</small><b>${esc(cur.when)}</b></div><div><small>Files</small><b>${cur.files.length}</b></div></div>
+    <div class="files">${cur.files.map((x, i) => `<button class="${i === ui.docFile ? 'on' : ''}" data-file="${i}">📄<span><b>${esc(x[0])}</b><small>${x[1]} · uploaded</small></span></button>`).join('')}</div>
+    <div class="doc"><div class="sheet"><p class="eyebrow">Registration record</p><small>LOCAL FOOD BUSINESS AUTHORITY</small><h3>${esc(cur.name)}</h3>
+    <dl><dt>Registration ID</dt><dd>${esc(cur.ref)}</dd><dt>Address</dt><dd>${esc(cur.loc)}</dd><dt>File</dt><dd>${esc(f[0])}</dd><dt>Status</dt><dd>${cur.state === 'Pending' ? 'Submitted for review' : esc(cur.state)}</dd></dl></div></div>
+    <div class="alert" style="background:#f1f0e6;border-color:var(--ok);color:var(--ink)">Compare names, addresses, dates, and issuing details with the applicant profile before recording a decision.</div>
+    <div class="foot"><button class="sm bad" data-doc="Rejected">Reject account</button><button class="sm warn" data-doc="Files requested">Request missing files</button><button class="sm ok" data-doc="Verified">Verify documents</button></div>`;
+  }
+  return head('Registration evidence', 'Document verification', 'Review legitimacy, safety records, and referrals before granting access to the network.') +
+  `<div class="panel split"><div class="list"><div class="bar"><b>Registration review</b><span class="cnt">${pendingDocs().length}</span></div><div class="tabs" style="padding:0 18px;border-bottom:1px solid var(--line)">${tabs}</div>
+  ${list.map(x => `<button class="${cur && x.id === cur.id ? 'on' : ''}" data-doc-id="${x.id}"><span class="k">${esc(x.kind)}</span><b>${esc(x.name)}</b><small>${x.id} · ${esc(x.when)}${x.state !== 'Pending' ? ' · ' + esc(x.state) : ''}</small></button>`).join('')}</div>
+  <div class="detail">${right}</div></div>`;
+}
+
+// DSA: LINEAR SEARCH + FILTER. Each record is checked against the status filter and the search text
+// (fields joined into one string, then includes()). About O(n * m): n records, m = length of the text.
+function donationsView() {
+  const q = ui.q.toLowerCase();
+  const rows = db.donations.filter(x => (!ui.st || x.status === ui.st) && (!q || [x.id, x.donor, x.recipient, x.food].join(' ').toLowerCase().includes(q)));
+  return head('Traceable handoffs', 'Donation history and records', 'Find every submitted donation and follow its current stage through completion.') +
+  `<div class="panel"><div class="bar"><input id="search" type="search" placeholder="Search donor, recipient, food, or ID" value="${esc(ui.q)}">
+  <select id="stFilter"><option value="">All statuses</option>${STATUSES.map(s => `<option ${ui.st === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div>
+  <div class="scroll"><table><thead><tr><th>Record</th><th>Donor</th><th>Recipient</th><th>Food information</th><th>Date</th><th>Quantity</th><th>Status</th></tr></thead><tbody>
+  ${rows.map(x => `<tr><td><b>${x.id}</b></td><td><b>${esc(x.donor)}</b></td><td>${esc(x.recipient)}</td><td><b>${esc(x.food)}</b><small>${esc(x.cat)}</small></td><td>${x.date}</td><td>${esc(x.qty)}</td><td>${pill(x.status)}</td></tr>`).join('') ||
+  '<tr><td colspan="7" class="empty">No donations match. Clear the search or pick another status.</td></tr>'}</tbody></table></div></div>`;
+}
+
+// DSA: items = queue() (the queue); find() selects the open item. `checks` is an array of [label, value] pairs.
+// Basic screening = completeness check: a field passes if it has a value (empty = flagged). It does not yet compare the date with today.
+function queueView() {
+  const items = queue();
+  const cur = items.find(x => x.id === ui.qId) || items[0];
+  let right = '<div class="empty">The queue is clear. New submissions will appear here.</div>';
+  if (cur) {
+    const checks = [['Food condition', cur.cond], ['Packaging condition', cur.pack], ['Storage information', cur.stor], ['Expiration / best-before', cur.exp, isExpired(cur.exp)]]; // 3rd value = failed the expiry check
+    right = `<div class="dh"><div><p class="eyebrow">${cur.id} · ${esc(cur.cat)}</p><h2>${esc(cur.food)}</h2><small>Submitted by ${esc(cur.donor)} · Today, ${cur.at}</small></div>${pill('Under Review')}</div>
+    <div class="alert"><b>Basic screening and documentation only.</b> Savora applies predefined checks to submitted information. It does not physically inspect, laboratory test, certify, or guarantee donated food as safe for consumption.</div>
+    <div class="sec"><h3><i>1</i><span>Food and collection details<br><small style="font-weight:400;color:var(--mut)">Information supplied by the food establishment</small></span></h3>
+    <div class="kv"><div><small>Food description</small><b>${esc(cur.food)}</b></div><div><small>Category</small><b>${esc(cur.cat)}</b></div><div><small>Quantity</small><b>${esc(cur.qty)}</b></div><div><small>Pickup location</small><b>${esc(cur.loc)}</b></div><div style="grid-column:1/-1;border-right:0"><small>Available pickup time</small><b>${esc(cur.pick)}</b></div></div></div>
+    <div class="sec" style="border-top:1px solid var(--line)"><h3><i>2</i><span>Screening criteria<br><small style="font-weight:400;color:var(--mut)">Review each submitted condition before making a decision</small></span></h3>
+    <div class="crit">${checks.map(c => `<div><i class="${c[1] && !c[2] ? '' : 'no'}">${c[1] && !c[2] ? '✓' : '!'}</i><span><small>${c[0]}</small><b>${esc(c[2] ? c[1] + ' (expired, reject or flag)' : (c[1] || 'Missing, flag for follow-up'))}</b></span></div>`).join('')}</div></div>
+    <div class="foot"><button class="sm bad" data-q="Rejected">Reject</button><button class="sm warn" data-q="Flagged">Flag</button><button class="sm ok" data-q="Available">Approve / verify</button></div>`;
+  }
+  return head('Basic screening', 'Verification queue', 'Check submitted information against predefined documentation criteria.') +
+  `<div class="panel split"><div class="list"><div class="bar"><b>Waiting for review</b><span class="cnt">${items.length}</span></div>
+  ${items.map(x => `<button class="${cur && x.id === cur.id ? 'on' : ''}" data-q-id="${x.id}"><span class="k">${x.id}</span><b>${esc(x.food)}</b><small>${esc(x.donor)} · Today · ${x.at}</small></button>`).join('')}</div><div class="detail">${right}</div></div>`;
+}
+
+// DSA: DISPATCH TABLE (hash map). Route name -> view function, so render() picks the screen in O(1) without an if/else chain.
+const VIEWS = { users: usersView, documents: docsView, donations: donationsView, queue: queueView };
+
+// Router: parses location.hash, then looks up the view in VIEWS. Admin links and workspace links share this one entry point.
+function render() {
+  const route = location.hash.replace(/^#\/?/, '');
+  const isAdmin = route.startsWith('admin');
+  const r0 = route.split('/')[0], isWs = ['donor', 'recipient', 'volunteer'].includes(r0);
+  $('#site').hidden = isAdmin || isWs; $('#admin').hidden = !isAdmin; $('#ws').hidden = !isWs;
+  if (isWs) return window.renderWs && window.renderWs(r0);
+  if (!isAdmin) return;
+  const key = VIEWS[route.split('/')[1]] ? route.split('/')[1] : 'users';
+  $('#sidenav').innerHTML = NAV.map(([k, l, n]) => `<a href="#/admin/${k}" class="${k === key ? 'on' : ''}">${l}${n() ? `<span class="cnt">${n()}</span>` : ''}</a>`).join('');
+  $('#view').innerHTML = VIEWS[key]();
+  const s = $('#search'); if (s) { s.oninput = e => { ui.q = e.target.value; const p = e.target.selectionStart; render(); const n = $('#search'); n.focus(); n.setSelectionRange(p, p); }; }
+  const f = $('#stFilter'); if (f) f.onchange = e => { ui.st = e.target.value; render(); };
+}
+
+/* ---------- admin actions ---------- */
+// DSA: event delegation. One listener for the whole page reads data-* attributes, so cost does not grow with the number of buttons.
+document.addEventListener('click', e => {
+  const t = e.target.closest('button,a'); if (!t) return;
+  const D = t.dataset;
+  if (D.tab) { ui.tab = D.tab; render(); }
+  else if (D.user) { const u = db.users[ui.tab].find(x => x.id === D.user); u.status = D.do; save(); toast(`${u.org} is now ${D.do.toLowerCase()}.`); render(); }
+  else if (D.dfilter) { ui.docFilter = D.dfilter; ui.docFile = 0; render(); }
+  else if (D.docId) { ui.docId = D.docId; ui.docFile = 0; render(); }
+  else if (D.file) { ui.docFile = +D.file; render(); }
+  else if (D.doc) { const x = db.docs.find(y => y.id === ui.docId) || db.docs[0]; x.state = D.doc === 'Verified' ? 'Verified' : D.doc; save(); toast(`${x.name}: ${D.doc.toLowerCase()}.`); render(); }
+  else if (D.qId) { ui.qId = D.qId; render(); }
+  else if (D.q) { const x = queue().find(y => y.id === ui.qId) || queue()[0]; setStatus(x, D.q); ui.qId = null; save(); toast(`${x.id} marked ${D.q.toLowerCase()}.`); render(); }
+  else if (D.join) openModal(D.join);
+});
+
+/* ---------- join modal ---------- */
+const COPY = {
+  establishment: ['Donate food', 'Tell us about your food business.', 'Register to list eligible surplus. An administrator will review your documents before you can post.', 'What food do you usually have left over?', 'Typical surplus, storage, and pickup times'],
+  recipient: ['Find food', 'Tell us about your organization.', 'Join our network of participating community partners and receive local food alerts.', 'Who do you support?', 'Tell us about your community, typical food needs, storage capacity, and collection availability']
+};
+let role = 'establishment';
+function openModal(r) {
+  role = r; const c = COPY[r];
+  $('#mKicker').textContent = c[0]; $('#mTitle').textContent = c[1]; $('#mSub').textContent = c[2];
+  $('#mAreaL').firstChild.textContent = c[3]; $('#joinForm').info.placeholder = c[4];
+  $('#mErr').textContent = ''; $('#modal').hidden = false; $('#joinForm').org.focus();
+}
+const closeModal = () => { $('#modal').hidden = true; $('#joinForm').reset(); };
+$('#closeModal').onclick = closeModal;
+$('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+$('#joinForm').addEventListener('submit', e => {
+  e.preventDefault(); const f = e.target;
+  if (!f.org.value.trim() || !f.name.value.trim()) return $('#mErr').textContent = 'Enter your organization and your name.';
+  if (!/^\S+@\S+\.\S+$/.test(f.email.value)) return $('#mErr').textContent = 'Enter a valid email address, like you@organization.org.';
+  const list = db.users[role === 'establishment' ? 'donors' : 'recipients'];
+  list.push({ id: String((role === 'establishment' ? 0 : 1000) + list.length + 1).padStart(4, '0'), org: f.org.value.trim(), loc: 'To be confirmed', contact: f.name.value.trim(), phone: 'Not provided', email: f.email.value.trim(), status: 'Pending' });
+  save(); closeModal(); toast('Request sent. We will email you after review.'); render();
+});
+
+addEventListener('hashchange', render);
+render();
+
+/* Savora workspaces: donor, recipient, volunteer, plus login, signup, donation and request dialogs. Shares `db` with the admin script above (same file). */
+// DSA: STATE MACHINE as an ordered array. A donation may only move forward through these stages; the array index is the stage number.
+const STAGES = ['Submitted', 'Under Review', 'Available', 'Matched', 'Scheduled for Pickup', 'Delivered', 'Completed'];
+const LBL = { donor: 'Donor', recipient: 'Recipient', volunteer: 'Volunteer' }, KIND = { donor: 'Food establishment', recipient: 'Recipient organization', volunteer: 'Volunteer' };
+const ROLEOF = { donor: 'donors', recipient: 'recipients', volunteer: 'volunteers' };
+const OPT = { cat: ['Prepared meals', 'Bakery', 'Fresh produce', 'Packaged food'], cond: ['Freshly prepared', 'Fresh', 'Sealed and unopened', 'Near best-before'],
+  pack: ['Sealed food-safe containers', 'Original sealed packaging', 'Covered trays', 'Open or uncovered'], stor: ['Refrigerated', 'Frozen', 'Room temperature', 'Cool and dry', 'Hot-held'] };
+const WS = { q: '', sel: null };
+db.acct = db.acct || { donor: '0001', recipient: '1001', volunteer: '2001' };
+const nowStr = () => 'Today at ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+// DSA: append-only LOG. push() adds [status, time] to x.hist in O(1). Earlier entries are never changed, which keeps the record traceable.
+function setStatus(x, s) { x.status = s; (x.hist = x.hist || []).push([s, nowStr()]); }
+// DSA: linear search, find() over one role's users by id, O(n). Falls back to the first user if the saved id is missing.
+const meOf = r => { const l = db.users[ROLEOF[r]]; return l.find(u => u.id === db.acct[r]) || l[0]; };
+
+/* ---- dialogs ---- */
+function dlg(html, f) {
+  const m = $('#dlg'); m.innerHTML = `<form class="box" data-f="${f || ''}"><button type="button" class="x" data-x aria-label="Close">&times;</button>${html}</form>`;
+  m.hidden = false; const i = m.querySelector('input,textarea,select'); if (i) i.focus();
+}
+const undlg = () => { $('#dlg').hidden = true; };
+const fld = (n, l, ph = '', t = 'text', req = true) => `<label>${l}<input name="${n}" type="${t}" placeholder="${ph}" ${req ? 'required' : ''}></label>`;
+const sel = (n, l, a, ph) => `<label>${l}<select name="${n}" required><option value="">${ph}</option>${a.map(o => `<option>${o}</option>`).join('')}</select></label>`;
+const surplusFields = () => `<p class="eyebrow">Surplus food details</p>
+  <div class="two">${fld('food', 'Food name or description', 'e.g. Vegetable rice bowls')}${sel('cat', 'Food category', OPT.cat, 'Select category')}</div>
+  <div class="two">${fld('qty', 'Quantity', 'e.g. 30 portions')}${fld('exp', 'Use-by / best-before', '', 'date')}</div>
+  <div class="two">${sel('cond', 'Food condition', OPT.cond, 'Select')}${sel('pack', 'Packaging condition', OPT.pack, 'Select condition')}</div>
+  <div class="two">${sel('stor', 'Storage information', OPT.stor, 'Select storage')}${fld('pick', 'Available pickup time', 'e.g. Today · 4:30–6:30 PM')}</div>
+  ${fld('loc', 'Pickup location', 'Full collection address')}
+  <label>Additional notes<textarea name="notes" rows="2" placeholder="Allergens, handling instructions, access details"></textarea></label>
+  <label class="chk"><input type="checkbox" required> I confirm the information is accurate and understand Savora does not guarantee food safety.</label>`;
+// DSA: unshift() inserts at the FRONT of the donations array (O(n) because items shift), so the newest donation is shown first.
+// ID = prefix + array length; safe here because donations are never deleted. `hist` starts as a 2-entry log.
+function addDonation(f, org) {
+  const id = 'SV-' + (2100 + db.donations.length);
+  const x = { id, donor: org, recipient: 'Awaiting match', food: f.food, cat: f.cat, date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }), qty: f.qty, status: 'Under Review',
+    loc: f.loc, pick: f.pick, cond: f.cond, pack: f.pack, stor: f.stor, exp: f.exp, at: new Date().toLocaleTimeString([], { hour: 'numeric', minute: 'numeric' }), notes: f.notes || '',
+    requests: [], hist: [['Submitted', nowStr()], ['Under Review', nowStr()]], vol: null, dist: '1.' + id.slice(-1) + ' km' };
+  db.donations.unshift(x); return x;
+}
+// DSA: appends a new user to that role's array (push, O(1)). The ID comes from the role offset + list length, padded to 4 digits.
+function newUser(role, f) {
+  const l = db.users[ROLEOF[role]], id = String((role === 'donor' ? 0 : role === 'recipient' ? 1000 : 2000) + l.length + 1).padStart(4, '0');
+  l.push({ id, org: f.org.trim(), loc: 'To be confirmed', contact: f.name.trim(), phone: 'Not provided', email: f.email.trim(), status: 'Pending' }); db.acct[role] = id;
+}
+function success(role) {
+  dlg(`<div class="ok-c"><span class="okb">&#10003;</span><p class="eyebrow">You're all set</p><h2>Thanks for joining the movement.</h2><p class="sub">We've received your details. An administrator will review your account, and you can start using your workspace now.</p>
+  <button type="button" class="btn lime" data-enter="${role}">Continue to ${role === 'donor' ? 'donor' : 'recipient'} workspace</button></div>`);
+}
+function openModal(r) {
+  if (r === 'establishment') dlg(`<p class="eyebrow">Donate surplus</p><h2>Turn today's surplus into support.</h2><p class="sub">Share a few details and we'll help find the right recipient.</p>
+    ${fld('org', 'Organization name', 'e.g. Green Fork Kitchen')}<div class="two">${fld('name', 'Your name', 'Full name')}${fld('email', 'Email', 'you@organization.org', 'email')}</div>${surplusFields()}
+    <button class="btn lime wide">Submit donation &rarr;</button>`, 'sign-don');
+  else dlg(`<p class="eyebrow">Find food</p><h2>Tell us about your organization.</h2><p class="sub">Join our network of participating community partners and receive local food alerts.</p>
+    ${fld('org', 'Organization name', 'e.g. Green Fork Kitchen')}<div class="two">${fld('name', 'Your name', 'Full name')}${fld('email', 'Email', 'you@organization.org', 'email')}</div>
+    <label>Who do you support?<textarea name="info" rows="3" placeholder="Community, typical food needs, storage capacity, collection availability"></textarea></label><button class="btn lime wide">Request to join &rarr;</button>`, 'sign-rec');
+}
+function loginDlg() {
+  const row = r => `<div class="lrow"><label>${KIND[r]}<select id="l-${r}">${db.users[ROLEOF[r]].map(u => `<option value="${u.id}" ${u.id === db.acct[r] ? 'selected' : ''}>${esc(u.org)}</option>`).join('')}</select></label><button type="button" class="btn" data-enter="${r}">Enter</button></div>`;
+  dlg(`<p class="eyebrow">Log in</p><h2>Choose your workspace.</h2><p class="sub">Demo mode: pick an account for each role. No password needed.</p>${row('donor')}${row('recipient')}${row('volunteer')}
+    <div class="lrow"><label>Administrator<select disabled><option>Jordan Lee</option></select></label><a class="btn" href="#/admin/users" data-x>Enter</a></div>`);
+}
+function donationDlg() { dlg(`<p class="eyebrow">New donation</p><h2>List surplus food.</h2>${surplusFields()}<button class="btn lime wide">Submit donation &rarr;</button>`, 'donation'); }
+function requestDlg(id) {
+  const x = db.donations.find(y => y.id === id);
+  dlg(`<p class="eyebrow">Donation request</p><h2>${esc(x.food)}</h2><div class="sum"><b>${esc(x.donor)}</b><span>${esc(x.qty)} · ${x.dist} away · ${esc(x.pick)}</span></div>
+    <div class="alert" style="margin:0">Savora does not guarantee food safety or determine suitability. Review the details yourself before collecting.</div>
+    <label>Collection plan<textarea name="plan" rows="3" placeholder="Optional: who will collect and any handling needs"></textarea></label>
+    <label class="chk"><input type="checkbox" required> I understand that transportation depends on participating donors, recipients, or authorized volunteers.</label>
+    <div class="foot" style="padding:0"><button type="button" class="sm" data-x>Cancel</button><button class="btn lime">Send request &rarr;</button></div>`, 'req:' + id);
+}
+
+/* ---- shared pieces ---- */
+const IMGC = c => 'c-' + cls(c);
+function card(x, o = {}) {
+  return `<article class="fc ${o.sel && WS.sel === x.id ? 'on' : ''}" ${o.sel ? `data-sel="${x.id}"` : ''}><div class="img ${IMGC(x.cat)}"><span class="tg">${esc(o.cat ? x.cat : x.status)}</span></div><div class="fb">
+  <p class="k">${esc(x.donor)}</p><h3>${esc(x.food)}</h3><dl><div><dt>Quantity</dt><dd>${esc(x.qty)}</dd></div><div><dt>Storage</dt><dd>${esc(x.stor)}</dd></div>
+  <div><dt>Pickup location</dt><dd>${esc(x.loc)}</dd></div><div><dt>Pickup window</dt><dd>${esc(x.pick)}</dd></div>${o.dist ? `<div><dt>Distance</dt><dd>${x.dist}</dd></div>` : ''}</dl>${o.btn || ''}</div></article>`;
+}
+// DSA: STAGES.indexOf(x.status) is a linear search over 7 items (effectively O(1)) that gives the progress position.
+// Object.fromEntries(x.hist) turns the log into a hash map (stage -> time) so each stage's time is looked up in O(1).
+function track(x) {
+  let i = STAGES.indexOf(x.status); if (x.status === 'Completed') i = 7;
+  const h = Object.fromEntries((x.hist || []).map(a => [a[0], a[1]]));
+  return `<section class="trk"><header><div><p class="eyebrow lime-t">${esc(x.food)} · #${x.id}</p><h2>Donation tracking</h2></div>${pill(x.status)}</header>
+  ${i < 0 ? `<p class="tn">This donation is ${esc(x.status.toLowerCase())}. Contact the Savora team for next steps.</p>` : `<ol>${STAGES.map((s, n) => `<li class="${n < i ? 'done' : n === i ? 'now' : ''}"><i>${n < i ? '✓' : n + 1}</i><b>${s}</b><small>${h[s] || 'Pending'}</small></li>`).join('')}</ol>`}
+  <p class="tn">Savora records logistics; transport is coordinated by participating donors, recipients, or authorized volunteers.</p></section>`;
+}
+function hero(role, sub, extra) {
+  const u = meOf(role);
+  return `<section class="whero"><div><p class="eyebrow lime-t">${LBL[role]} workspace · ${esc(u.org)}</p><h1>Good morning, <em>${esc(u.org.split(' ').slice(0, 2).join(' '))}.</em></h1><p>${sub}</p>
+  ${u.status === 'Pending' ? '<p class="pend">Your account is awaiting administrator approval.</p>' : ''}</div>
+  <div class="wside"><div class="sw"><button type="button" class="chipb" data-switch><i>&#9786;</i><span><b>${esc(u.org)}</b><small>${KIND[role]}</small></span>&#9662;</button>
+  <div class="menu" id="menu" hidden>${db.users[ROLEOF[role]].map(a => `<button type="button" data-acct="${role}|${a.id}">${esc(a.org)}${a.id === db.acct[role] ? ' ✓' : ''}</button>`).join('')}<hr>
+  ${['donor', 'recipient', 'volunteer'].filter(r => r !== role).map(r => `<a href="#/${r}">${LBL[r]} workspace</a>`).join('')}<a href="#/admin/users">Admin console</a><a href="#/">Sign out</a></div></div>${extra}</div></section>`;
+}
+const wfoot = t => `<p class="wfoot">${t}</p>`;
+
+/* ---- views ---- */
+function donorV() {
+  const u = meOf('donor'), mine = db.donations.filter(x => x.donor === u.org);
+  if (!mine.find(x => x.id === WS.sel)) WS.sel = (mine.find(x => x.status === 'Available' && x.requests.some(r => r.state === 'Pending')) || mine[0] || {}).id;
+  const cur = mine.find(x => x.id === WS.sel), reqs = cur && cur.status === 'Available' ? cur.requests.filter(r => r.state === 'Pending') : [];
+  return hero('donor', 'Record surplus, provide handling details, and follow each donation through recipient review and collection.', '<button type="button" class="btn lime wide" data-newdon>+ New donation</button>') +
+  `<div class="wrap"><div class="alert wal"><b>Screening is not food-safety certification.</b> Savora records information and applies predefined checks. Your establishment remains responsible for proper handling, storage, packaging, and compliance.</div>
+  <p class="eyebrow">Active listings</p><h2 class="wh">Food currently in motion</h2>
+  ${mine.length ? `<div class="grid">${mine.map(x => card(x, { sel: 1 })).join('')}</div>` : '<div class="empty">No donations yet. Use New donation to list surplus.</div>'}
+  ${reqs.length ? `<section class="reqs"><h3>Requests for ${esc(cur.food)}</h3>${reqs.map(r => `<div class="rq"><div><b>${esc(r.org)}</b><small>${esc(r.plan || 'No collection plan given')}</small></div><div class="act"><button class="sm bad" data-dec="${cur.id}|${r.id}">Decline</button><button class="sm ok" data-acc="${cur.id}|${r.id}">Accept</button></div></div>`).join('')}</section>` : ''}
+  ${cur ? track(cur) + (cur.status === 'Delivered' ? `<div class="doneb"><span>Recipient has received the food?</span><button class="btn lime" data-done="${cur.id}">Confirm completed</button></div>` : '') : ''}</div>`;
+}
+// DSA: avail = filter() over all donations for 'Available' + search text, O(n). `mine` uses some() over each donation's requests, O(n * r).
+function recipV() {
+  const u = meOf('recipient'), q = WS.q.toLowerCase();
+  const avail = db.donations.filter(x => x.status === 'Available' && (!q || [x.food, x.donor, x.cat].join(' ').toLowerCase().includes(q)));
+  const mine = db.donations.filter(x => x.recipient === u.org || x.requests.some(r => r.org === u.org));
+  return hero('recipient', 'Review donor-provided details, pickup windows, and storage needs before sending a request.', `<input id="wsearch" class="wsearch" type="search" placeholder="Search available food" value="${esc(WS.q)}">`) +
+  `<div class="wrap"><div class="ph"><div><h2 class="wh">Available near you</h2><p class="sub">Donor-submitted details for potential matching. Availability may change.</p></div><p class="loc">${esc(u.loc)} · within 5 km</p></div>
+  ${avail.length ? `<div class="grid">${avail.map(x => card(x, { cat: 1, dist: 1, btn: x.requests.some(r => r.org === u.org && r.state === 'Pending') ? '<button class="btn green wide" disabled>Request sent</button>' : `<button class="btn green wide" data-req="${x.id}">Request this donation &rarr;</button>` })).join('')}</div>` : '<div class="empty">Nothing matches right now. Try another search, or check back soon.</div>'}
+  ${mine.length ? `<h2 class="wh" style="margin-top:48px">My requests</h2><div class="grid">${mine.map(x => {
+    const r = x.requests.find(r => r.org === u.org), mine2 = x.recipient === u.org, st = mine2 ? x.status : (r && r.state === 'Pending' && x.status === 'Available' ? 'Pending' : 'Declined');
+    return card(x, { cat: 1, btn: `<div class="mr">${pill(st)}${mine2 && x.status === 'Delivered' ? `<button class="btn green" data-done="${x.id}">Confirm received</button>` : ''}</div>${mine2 && ['Matched', 'Scheduled for Pickup'].includes(x.status) ? `<p class="sub">Confirmed. Collect at ${esc(x.loc)}, ${esc(x.pick)}.${x.vol ? ' Volunteer: ' + esc(x.vol) + '.' : ' Waiting for a volunteer to take the pickup.'}</p>` : ''}` });
+  }).join('')}</div>` : ''}${wfoot('Basic screening is documentation, not food-safety certification.')}</div>`;
+}
+// DSA: open pickups = filter() for status 'Matched' with no volunteer yet (a waiting list, O(n)); 'My pickups' = filter() by volunteer name.
+function volV() {
+  const u = meOf('volunteer'), open = db.donations.filter(x => x.status === 'Matched' && !x.vol), mine = db.donations.filter(x => x.vol === u.org);
+  const act = x => x.status === 'Scheduled for Pickup' ? `<button class="btn green wide" data-deliver="${x.id}">Mark delivered</button>` : `<div class="mr">${pill(x.status)}</div>`;
+  const vc = (x, b) => card(x, { cat: 1, btn: `<p class="sub">To: ${esc(x.recipient)}</p>${b}` });
+  return hero('volunteer', 'Take a matched pickup, collect from the donor, and hand the food to the recipient.', '') +
+  `<div class="wrap"><h2 class="wh">Open pickups</h2>${open.length ? `<div class="grid">${open.map(x => vc(x, `<button class="btn green wide" data-take="${x.id}">Take this pickup</button>`)).join('')}</div>` : '<div class="empty">No matched pickups need a volunteer right now.</div>'}
+  <h2 class="wh" style="margin-top:48px">My pickups</h2>${mine.length ? `<div class="grid">${mine.map(x => vc(x, act(x))).join('')}</div>` : '<div class="empty">You have no pickups yet.</div>'}${wfoot('Volunteers coordinate logistics only. Savora does not inspect or certify food.')}</div>`;
+}
+window.renderWs = role => { $('#ws').innerHTML = { donor: donorV, recipient: recipV, volunteer: volV }[role](); window.scrollTo(0, 0); };
+
+/* ---- events ---- */
+const rerender = () => { const y = scrollY; render(); scrollTo(0, y); };
+document.addEventListener('click', e => {
+  const mn0 = $('#menu'); if (mn0 && !e.target.closest('.sw')) mn0.hidden = true; // click outside closes the org dropdown
+  const t = e.target.closest('button,a,article'), m = $('#dlg'); if (e.target === m) return undlg(); if (!t) return;
+  const D = t.dataset;
+  if ('login' in D) loginDlg();
+  else if ('x' in D) undlg();
+  else if (D.enter) { const s = $('#l-' + D.enter); if (s) db.acct[D.enter] = s.value; save(); undlg(); const same = location.hash === '#/' + D.enter; location.hash = '#/' + D.enter; if (same) render(); }
+  else if ('newdon' in D) donationDlg();
+  else if ('switch' in D) { const mn = $('#menu'); mn.hidden = !mn.hidden; }
+  else if (D.acct) { const [r, id] = D.acct.split('|'); db.acct[r] = id; save(); rerender(); }
+  else if (D.req) requestDlg(D.req);
+  else if (D.sel) { WS.sel = D.sel; rerender(); }
+  // DSA: accepting a request loops over the donation's requests (O(r)): the chosen one becomes Accepted, all others Declined,
+  // so only one recipient can win a donation (mutual exclusion). Then setStatus() moves the donation to Matched.
+  else if (D.acc || D.dec) {
+    const [xi, ri] = (D.acc || D.dec).split('|'), x = db.donations.find(y => y.id === xi);
+    x.requests.forEach(r => { if (D.acc) r.state = r.id === ri ? 'Accepted' : 'Declined'; else if (r.id === ri) r.state = 'Declined'; });
+    if (D.acc) { x.recipient = x.requests.find(r => r.id === ri).org; setStatus(x, 'Matched'); }
+    save(); toast(D.acc ? 'Request accepted. A volunteer can now take the pickup.' : 'Request declined.'); rerender();
+  }
+  else if (D.take) { const x = db.donations.find(y => y.id === D.take); x.vol = meOf('volunteer').org; setStatus(x, 'Scheduled for Pickup'); save(); toast('Pickup scheduled.'); rerender(); }
+  else if (D.deliver) { setStatus(db.donations.find(y => y.id === D.deliver), 'Delivered'); save(); toast('Marked delivered. Waiting for confirmation.'); rerender(); }
+  else if (D.done) { setStatus(db.donations.find(y => y.id === D.done), 'Completed'); save(); toast('Donation completed. Thank you.'); rerender(); }
+});
+document.addEventListener('input', e => {
+  if (e.target.id !== 'wsearch') return; WS.q = e.target.value; const p = e.target.selectionStart; render(); const n = $('#wsearch'); n.focus(); n.setSelectionRange(p, p);
+});
+document.addEventListener('submit', e => {
+  const form = e.target; if (form.id === 'joinForm') return; if (form.closest('#dlg')) e.preventDefault(); if (!form.dataset.f) return;
+  const f = Object.fromEntries(new FormData(form)), k = form.dataset.f;
+  // DSA: early exit. The expiry check runs before anything is saved, so an expired item never enters db.donations.
+  if ((k === 'donation' || k === 'sign-don') && isExpired(f.exp)) return toast('The best-before date has already passed. Please check the date.');
+  if (k === 'sign-don') { newUser('donor', f); addDonation(f, f.org.trim()); save(); success('donor'); }
+  else if (k === 'sign-rec') { newUser('recipient', f); save(); success('recipient'); }
+  else if (k === 'donation') { const x = addDonation(f, meOf('donor').org); WS.sel = x.id; save(); undlg(); toast('Donation submitted for review.'); rerender(); }
+  else if (k.startsWith('req:')) {
+    const x = db.donations.find(y => y.id === k.slice(4)); x.requests.push({ id: 'R' + Date.now(), org: meOf('recipient').org, plan: f.plan || '', state: 'Pending' }); save();
+    dlg(`<div class="ok-c"><span class="okb">&#10003;</span><p class="eyebrow">Request submitted</p><h2>The donor will review your request.</h2><p class="sub">This request does not reserve or finalize the donation.</p><button type="button" class="btn" data-x>Return to food library</button></div>`);
+    if (location.hash === '#/recipient') render();
+  }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { undlg(); const mn = $('#menu'); if (mn) mn.hidden = true; } });
+render();
+</script>
+</body>
+</html>

@@ -1,4 +1,6 @@
-# FoodLoop: An Intelligent Food Waste Redistribution Network
+# Savora (FoodLoop)
+
+**Start with [Savora setup](docs/SAVORA_SETUP.md)** for the current database migration, connection settings, administrator setup and workflow checks. This supersedes the foundation-stage instructions below. The backend now requires database credentials and no longer disables database startup.
 
 FoodLoop is an academic project focused on reducing food waste by connecting food establishments with organizations and communities that need food. The project is currently in its initial development stage and is being structured to support future implementation of a web-based donation, coordination, and tracking system.
 
@@ -35,11 +37,11 @@ FOODLOOP/
 
 ## Development Status
 
-This repository is in the initial planning and setup phase. The foundational project structure, backend, frontend, and documentation are being prepared before the main application features are implemented.
+The Savora frontend includes account login, organization verification with private document submission, administrator review, donation screening, recipient requests and pickup completion. The original demo is retained as a reference in docs/. Live Supabase connection and workflow checks require local credentials.
 
 ## Setup Documentation
 
-See `docs/setup.md` for environment setup instructions and workflow guidance.
+See [Savora setup](docs/SAVORA_SETUP.md) for current setup and workflow guidance.
 
 ## Team Workflow
 
@@ -50,4 +52,4 @@ See `docs/setup.md` for environment setup instructions and workflow guidance.
 
 ## Important Note
 
-This project does not yet include the final application features. The current work focuses on establishing the project foundation, environment preparation, and structured documentation.
+The current implementation is intended for local testing. The setup guide lists the remaining operational work before public launch.
