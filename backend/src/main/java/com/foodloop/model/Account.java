@@ -9,5 +9,7 @@ public class Account {
  @Column(name="last_name") public String lastName;
  @Column(name="organization_name") public String organizationName;
  public String role;
+ public String phone;
+ public String location;
  public boolean verified;
 }

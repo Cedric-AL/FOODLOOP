@@ -1,5 +1,7 @@
 # Savora local setup
 
+For the four administrator pages and account/donation controls, see [Administrator workspace](ADMIN_WORKSPACE.md).
+
 React calls the Java API. Java connects directly to Supabase PostgreSQL. No Supabase API key is required. Passwords use BCrypt; login uses HTTP-only session cookies. Do not put database credentials in the frontend.
 
 ## 1. Update the existing database

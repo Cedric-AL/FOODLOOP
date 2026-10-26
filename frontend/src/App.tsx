@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import api, { refreshCsrf } from "./services/api";
 import { landing } from "./landing";
+import AdminWorkspace from "./AdminWorkspace";
 
 type User = {
   id: number;
@@ -50,6 +51,7 @@ const errorText = (e: unknown) => {
         403: "Your account does not have permission for this action.",
         409: "This record has changed or already exists. Refresh and try again.",
         413: "Each file must be 5 MB or smaller.",
+        500: "The server could not load your records. Check the backend log and confirm the database migration has been applied.",
       } as Record<number, string>
     )[x.response?.status || 0] ||
     "Unable to connect. Check that the backend is running and try again."
@@ -70,6 +72,7 @@ function App() {
     [showFood, setShowFood] = useState(false);
   const modal = useRef<HTMLDivElement>(null);
   async function load(u: User) {
+    if (u.role === "ADMIN") return;
     const [a, d, r] = await Promise.all([
       api.get(u.role === "ADMIN" ? "/admin/applications" : "/application"),
       api.get("/donations"),
@@ -215,15 +218,6 @@ function App() {
       setNotice("Donation submitted for screening.");
     });
   }
-  async function review(app: Application, e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const d = Object.fromEntries(new FormData(e.currentTarget));
-    await action(async () => {
-      await api.post(`/admin/applications/${app.id}/review`, d);
-      await load(user!);
-      setNotice("Application reviewed.");
-    });
-  }
   async function post(path: string, data?: object) {
     await action(async () => {
       await api.post(path, data);
@@ -231,69 +225,55 @@ function App() {
       setNotice("Saved successfully.");
     });
   }
-  async function download(id: number, kind: string) {
-    await action(async () => {
-      const response = await api.get(`/admin/applications/${id}/${kind}`, {
-        responseType: "blob",
-      });
-      const b = response.data as Blob;
-      const bytes = new Uint8Array(await b.slice(0, 8).arrayBuffer());
-      const ext = bytes[0] === 37 ? "pdf" : bytes[0] === 137 ? "png" : "jpg";
-      const url = URL.createObjectURL(b);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `application-${id}-${kind}.${ext}`;
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 10000);
-    });
-  }
   const application = apps[0];
   return (
     <>
-      <header className="nav">
-        <a className="logo" href="/" aria-label="Savora home">
-          <span className="leaf">❧</span>savora
-        </a>
-        {!user ? (
-          <>
-            <nav>
-              <a href="#how">How it works</a>
-              <a href="#impact">Impact</a>
-            </nav>
+      {user?.role !== "ADMIN" && (
+        <header className="nav">
+          <a className="logo" href="/" aria-label="Savora home">
+            <span className="leaf">❧</span>savora
+          </a>
+          {!user ? (
+            <>
+              <nav>
+                <a href="#how">How it works</a>
+                <a href="#impact">Impact</a>
+              </nav>
+              <div className="nav-r">
+                <button className="link" onClick={() => open("login")}>
+                  Log in
+                </button>
+                <button className="btn lime" onClick={() => open("register")}>
+                  Create account
+                </button>
+              </div>
+            </>
+          ) : (
             <div className="nav-r">
-              <button className="link" onClick={() => open("login")}>
-                Log in
-              </button>
-              <button className="btn lime" onClick={() => open("register")}>
-                Create account
+              <span>
+                {user.firstName} · {label(user.role)}
+              </span>
+              <button
+                className="btn"
+                disabled={busy}
+                onClick={() =>
+                  action(async () => {
+                    await api.post("/auth/logout");
+                    setUser(null);
+                    setApps([]);
+                    setDonations([]);
+                    setRequests([]);
+                    await refreshCsrf();
+                  })
+                }
+              >
+                Sign out
               </button>
             </div>
-          </>
-        ) : (
-          <div className="nav-r">
-            <span>
-              {user.firstName} · {label(user.role)}
-            </span>
-            <button
-              className="btn"
-              disabled={busy}
-              onClick={() =>
-                action(async () => {
-                  await api.post("/auth/logout");
-                  setUser(null);
-                  setApps([]);
-                  setDonations([]);
-                  setRequests([]);
-                  await refreshCsrf();
-                })
-              }
-            >
-              Sign out
-            </button>
-          </div>
-        )}
-      </header>
-      {!auth && (
+          )}
+        </header>
+      )}
+      {!auth && user?.role !== "ADMIN" && (
         <div className="dashboard" aria-live="polite">
           {error && (
             <p className="notice error" role="alert">
@@ -316,6 +296,21 @@ function App() {
             }
           }}
           dangerouslySetInnerHTML={{ __html: landing }}
+        />
+      ) : user.role === "ADMIN" ? (
+        <AdminWorkspace
+          user={user}
+          onSignOut={async () => {
+            await api.post("/auth/logout");
+            setUser(null);
+            setApps([]);
+            setDonations([]);
+            setRequests([]);
+            setNotice("");
+            setError("");
+            window.location.hash = "";
+            await refreshCsrf();
+          }}
         />
       ) : (
         <main>
@@ -533,57 +528,6 @@ function App() {
                 </form>
               </section>
             )}
-            {user.role === "ADMIN" && (
-              <section>
-                <h2>Organization applications</h2>
-                {apps.length === 0 && (
-                  <p className="notice">No applications yet.</p>
-                )}
-                {apps.map((a) => (
-                  <article className="panel" key={a.id}>
-                    <span className="status">{label(a.status)}</span>
-                    <h3>{a.organization}</h3>
-                    <p>
-                      {a.email} · {label(a.role || "")}
-                    </p>
-                    <div className="actions">
-                      <button
-                        className="btn"
-                        disabled={busy}
-                        onClick={() => download(a.id, "legal")}
-                      >
-                        Download legal document
-                      </button>
-                      <button
-                        className="btn"
-                        disabled={busy}
-                        onClick={() => download(a.id, "identity")}
-                      >
-                        Download valid ID
-                      </button>
-                    </div>
-                    {a.status === "PENDING" ? (
-                      <form className="form" onSubmit={(e) => review(a, e)}>
-                        <label>
-                          Review notes
-                          <textarea name="notes" required maxLength={1000} />
-                        </label>
-                        <Choice
-                          name="status"
-                          title="Decision"
-                          values={["APPROVED", "REJECTED"]}
-                        />
-                        <button className="btn lime" disabled={busy}>
-                          Save review
-                        </button>
-                      </form>
-                    ) : (
-                      <p>{a.notes}</p>
-                    )}
-                  </article>
-                ))}
-              </section>
-            )}
             <h2 className="wh">
               {user.role === "DONOR"
                 ? "Your donations"
@@ -645,34 +589,6 @@ function App() {
                           Confirm pickup completed
                         </button>
                       )}
-                    {user.role === "ADMIN" && d.status === "SUBMITTED" && (
-                      <form
-                        className="form"
-                        onSubmit={(e) => {
-                          e.preventDefault();
-                          const data = new FormData(e.currentTarget);
-                          post(`/admin/donations/${d.id}/screen`, {
-                            approve: data.get("decision") === "approve",
-                            notes: data.get("notes"),
-                          });
-                        }}
-                      >
-                        <label>
-                          Screening notes
-                          <textarea name="notes" required maxLength={1000} />
-                        </label>
-                        <label>
-                          Decision
-                          <select name="decision">
-                            <option value="approve">Make available</option>
-                            <option value="reject">Reject listing</option>
-                          </select>
-                        </label>
-                        <button className="btn lime" disabled={busy}>
-                          Save screening
-                        </button>
-                      </form>
-                    )}
                   </div>
                 </article>
               ))}
