@@ -1,5 +1,11 @@
 # Savora local setup
 
+For the latest photo, document-preview and recipient receipt workflow, see [Donation evidence and handoff](DONATION_EVIDENCE_AND_HANDOFF.md).
+
+For password reset email setup and its migration, see [Password recovery](PASSWORD_RECOVERY.md).
+
+For the four administrator pages and account/donation controls, see [Administrator workspace](ADMIN_WORKSPACE.md).
+
 React calls the Java API. Java connects directly to Supabase PostgreSQL. No Supabase API key is required. Passwords use BCrypt; login uses HTTP-only session cookies. Do not put database credentials in the frontend.
 
 ## 1. Update the existing database
@@ -66,7 +72,7 @@ Sign out/in after changing a role. There is no public admin registration or shar
 4. Donor refreshes the workspace, creates a donation, and enters food details and the pickup window.
 5. Admin screens the listing and makes it available or rejects it.
 6. Register and verify a recipient organization. Request available food.
-7. Donor accepts one request. Other pending requests are rejected. The listed pickup start is used as the scheduled pickup time. Donor confirms completion after handoff.
+7. Donor accepts one request. Other pending requests are rejected. The listed pickup start is used as the scheduled pickup time. Donor records handover; the assigned recipient confirms receipt or reports an issue.
 
 The implementation supports DONOR, RECIPIENT, ADMIN and pickup only, matching your schema. Original demo code is retained in docs/Savora_original_demo.html for reference, not served as an alternative login.
 
@@ -74,7 +80,7 @@ The implementation supports DONOR, RECIPIENT, ADMIN and pickup only, matching yo
 
 Documents are private database bytes, not public URLs. RLS blocks public Supabase Data API access; only authenticated admins may download through Java. File signatures and sizes are checked. Add malware scanning and a retention/deletion process before collecting real applicants' documents publicly.
 
-Sessions are in Java memory; restarting signs users out. Before a public launch add email verification, password recovery, login throttling, persistent sessions for multiple servers and monitoring. Deploy the frontend and API on one HTTPS site, set COOKIE_SECURE=true and FRONTEND_ORIGIN to the exact frontend origin. Current cookies support localhost or same-site deployment.
+Sessions are in Java memory; restarting signs users out. Before a public launch add email verification, login throttling, persistent sessions for multiple servers and monitoring. Deploy the frontend and API on one HTTPS site, set COOKIE_SECURE=true and FRONTEND_ORIGIN to the exact frontend origin. Current cookies support localhost or same-site deployment.
 
 ## Checks and troubleshooting
 

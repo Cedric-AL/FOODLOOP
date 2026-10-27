@@ -1,6 +1,15 @@
+import { donationLabel } from "./donationStatus";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import api, { refreshCsrf } from "./services/api";
 import { landing } from "./landing";
+import AdminWorkspace from "./AdminWorkspace";
+import PasswordField from "./PasswordField";
+import PasswordRecovery from "./PasswordRecovery";
+import SelectField from "./SelectField";
+import PrivateMedia from "./PrivateMedia";
+import PhotoPicker from "./PhotoPicker";
+import ReceiptPanel from "./ReceiptPanel";
+import ChatPanel from "./ChatPanel";
 
 type User = {
   id: number;
@@ -24,6 +33,7 @@ type Donation = {
   quantity: number;
   unit: string;
   expiryDate: string;
+  dateType: string;
   pickupLocation: string;
   status: string;
   pickupFrom: string;
@@ -32,14 +42,47 @@ type Donation = {
   packagingCondition: string;
   storageInfo: string;
   notes: string;
+  hasPhoto: boolean;
+  handoverAt: string | null;
+  collectionMethod: string;
+  donorEmail: string | null;
+  recipientEmail: string | null;
+  receiptOutcome: string | null;
+  receiptIssue: string | null;
+  receiptNotes: string | null;
+  receiptReviewStatus: string | null;
+  receiptAdminNotes: string | null;
+  cancellationReason: string | null;
 };
 type Request = {
   id: number;
   donationId: number;
+  collectionMethod: string;
+  collectionNotes: string | null;
+  email: string;
   organization: string;
   status: string;
 };
 const label = (s: string) => s.toLowerCase().replaceAll("_", " ");
+const pickupWindow = (from: string, until: string) => {
+  const start = new Date(from),
+    end = new Date(until);
+  if (
+    !from ||
+    !until ||
+    Number.isNaN(start.getTime()) ||
+    Number.isNaN(end.getTime())
+  )
+    return "Not specified";
+  const date = (value: Date) =>
+    value.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  const time = (value: Date) =>
+    value.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+  return start.toDateString() === end.toDateString()
+    ? `${date(start)} · ${time(start)} – ${time(end)}`
+    : `${date(start)} ${time(start)} – ${date(end)} ${time(end)}`;
+};
+
 const errorText = (e: unknown) => {
   const x = e as { response?: { status: number; data?: { message?: string } } };
   return (
@@ -50,6 +93,7 @@ const errorText = (e: unknown) => {
         403: "Your account does not have permission for this action.",
         409: "This record has changed or already exists. Refresh and try again.",
         413: "Each file must be 5 MB or smaller.",
+        500: "We couldn’t load your records. Please try again.",
       } as Record<number, string>
     )[x.response?.status || 0] ||
     "Unable to connect. Check that the backend is running and try again."
@@ -59,6 +103,7 @@ const errorText = (e: unknown) => {
 function App() {
   const [user, setUser] = useState<User | null>(null),
     [ready, setReady] = useState(false),
+    [sessionError, setSessionError] = useState(""),
     [auth, setAuth] = useState<"login" | "register" | null>(null),
     [role, setRole] = useState("DONOR"),
     [notice, setNotice] = useState(""),
@@ -68,44 +113,81 @@ function App() {
     [donations, setDonations] = useState<Donation[]>([]),
     [requests, setRequests] = useState<Request[]>([]),
     [showFood, setShowFood] = useState(false);
+  const [recovery, setRecovery] = useState(() =>
+    window.location.hash.startsWith("#reset-password="),
+  );
+  useEffect(() => {
+    if (window.location.hash.startsWith("#reset-password="))
+      window.history.replaceState(
+        null,
+        "",
+        window.location.pathname + window.location.search,
+      );
+  }, []);
   const modal = useRef<HTMLDivElement>(null);
-  async function load(u: User) {
+  useEffect(() => {
+    if (!user || user.role === "ADMIN") return;
+    let active = true;
+    const timer = setInterval(() => {
+      void load(user, () => active).catch(() => {});
+    }, 30000);
+    return () => {
+      active = false;
+      clearInterval(timer);
+    };
+  }, [user]);
+
+  async function load(u: User, current = () => true) {
+    if (u.role === "ADMIN") return;
     const [a, d, r] = await Promise.all([
       api.get(u.role === "ADMIN" ? "/admin/applications" : "/application"),
       api.get("/donations"),
       api.get("/requests"),
     ]);
+    if (!current()) return;
     setApps(a.data);
     setDonations(d.data);
     setRequests(r.data);
   }
+  async function restoreSession(current = () => true) {
+    setReady(false);
+    setSessionError("");
+    setError("");
+    try {
+      await refreshCsrf();
+      if (!current()) return;
+      let restored: User;
+      try {
+        restored = (await api.get("/auth/me", { timeout: 15000 })).data;
+      } catch (e) {
+        if ((e as { response?: { status: number } }).response?.status === 401) {
+          if (current()) setUser(null);
+          return;
+        }
+        throw e;
+      }
+      if (!current()) return;
+      setUser(restored);
+      try {
+        await load(restored, current);
+      } catch (e) {
+        if (current()) setError(errorText(e));
+      }
+    } catch (e) {
+      if (current()) setSessionError(errorText(e));
+    } finally {
+      if (current()) setReady(true);
+    }
+  }
   useEffect(() => {
     let active = true;
-    (async () => {
-      try {
-        await refreshCsrf();
-        try {
-          const u = (await api.get("/auth/me")).data;
-          if (active) {
-            setUser(u);
-            await load(u);
-          }
-        } catch (e) {
-          if ((e as { response?: { status: number } }).response?.status !== 401)
-            throw e;
-        }
-      } catch (e) {
-        if (active) setError(errorText(e));
-      } finally {
-        if (active) setReady(true);
-      }
-    })();
+    void restoreSession(() => active);
     return () => {
       active = false;
     };
   }, []);
   useEffect(() => {
-    if (!auth) return;
+    if (!auth || recovery) return;
     const previous = document.activeElement as HTMLElement;
     modal.current?.querySelector<HTMLInputElement>("input")?.focus();
     const key = (e: KeyboardEvent) => {
@@ -131,7 +213,7 @@ function App() {
       document.removeEventListener("keydown", key);
       previous?.focus();
     };
-  }, [auth]);
+  }, [auth, recovery]);
   async function action(fn: () => Promise<void>) {
     if (busy) return;
     setBusy(true);
@@ -147,6 +229,7 @@ function App() {
   }
   function open(mode: "login" | "register", r = "DONOR") {
     setRole(r);
+    setRecovery(false);
     setError("");
     setNotice("");
     setAuth(mode);
@@ -202,26 +285,30 @@ function App() {
   async function donate(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
-    const d = Object.fromEntries(new FormData(form));
+    const inputs = new FormData(form);
+    const d = Object.fromEntries(inputs);
+    delete d.photo;
     await action(async () => {
-      await api.post("/donations", {
-        ...d,
-        quantity: Number(d.quantity),
-        pickupFrom: new Date(String(d.pickupFrom)).toISOString(),
-        pickupUntil: new Date(String(d.pickupUntil)).toISOString(),
-      });
+      const payload = new FormData();
+      payload.append(
+        "details",
+        new Blob(
+          [
+            JSON.stringify({
+              ...d,
+              quantity: Number(d.quantity),
+              pickupFrom: new Date(String(d.pickupFrom)).toISOString(),
+              pickupUntil: new Date(String(d.pickupUntil)).toISOString(),
+            }),
+          ],
+          { type: "application/json" },
+        ),
+      );
+      payload.append("photo", inputs.get("photo") as File);
+      await api.post("/donations", payload);
       setShowFood(false);
       await load(user!);
       setNotice("Donation submitted for screening.");
-    });
-  }
-  async function review(app: Application, e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const d = Object.fromEntries(new FormData(e.currentTarget));
-    await action(async () => {
-      await api.post(`/admin/applications/${app.id}/review`, d);
-      await load(user!);
-      setNotice("Application reviewed.");
     });
   }
   async function post(path: string, data?: object) {
@@ -231,69 +318,86 @@ function App() {
       setNotice("Saved successfully.");
     });
   }
-  async function download(id: number, kind: string) {
-    await action(async () => {
-      const response = await api.get(`/admin/applications/${id}/${kind}`, {
-        responseType: "blob",
-      });
-      const b = response.data as Blob;
-      const bytes = new Uint8Array(await b.slice(0, 8).arrayBuffer());
-      const ext = bytes[0] === 37 ? "pdf" : bytes[0] === 137 ? "png" : "jpg";
-      const url = URL.createObjectURL(b);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `application-${id}-${kind}.${ext}`;
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 10000);
-    });
-  }
   const application = apps[0];
+  // Do not show public or account content until the server resolves the session.
+  if (!ready || sessionError)
+    return (
+      <main className="session-gate" aria-busy={!ready}>
+        <img
+          className="brand-mark"
+          src="/images/savora-logo.png?v=2"
+          alt="Savora"
+        />
+        {!ready ? (
+          <div role="status">
+            <h1>Loading Savora…</h1>
+            <p>Please wait while we check your session.</p>
+          </div>
+        ) : (
+          <>
+            <h1>We couldn’t connect to Savora</h1>
+            <p role="alert">{sessionError}</p>
+            <button className="btn lime" onClick={() => void restoreSession()}>
+              Try again
+            </button>
+          </>
+        )}
+      </main>
+    );
+
   return (
     <>
-      <header className="nav">
-        <a className="logo" href="/" aria-label="Savora home">
-          <span className="leaf">❧</span>savora
-        </a>
-        {!user ? (
-          <>
-            <nav>
-              <a href="#how">How it works</a>
-              <a href="#impact">Impact</a>
-            </nav>
+      {user?.role !== "ADMIN" && (
+        <header className="nav">
+          <a className="logo" href="/" aria-label="Savora home">
+            <img
+              className="brand-mark"
+              src="/images/savora-logo.png?v=2"
+              alt=""
+            />
+            Savora
+          </a>
+          {!user ? (
+            <>
+              <nav>
+                <a href="#how">How it works</a>
+                <a href="#impact">Impact</a>
+              </nav>
+              <div className="nav-r">
+                <button className="link" onClick={() => open("login")}>
+                  Log in
+                </button>
+                <button className="btn lime" onClick={() => open("register")}>
+                  Create account
+                </button>
+              </div>
+            </>
+          ) : (
             <div className="nav-r">
-              <button className="link" onClick={() => open("login")}>
-                Log in
-              </button>
-              <button className="btn lime" onClick={() => open("register")}>
-                Create account
+              <span>
+                {user.firstName} · {label(user.role)}
+              </span>
+              <button
+                className="btn"
+                disabled={busy}
+                onClick={() =>
+                  action(async () => {
+                    await api.post("/auth/logout");
+                    setUser(null);
+                    setApps([]);
+                    setDonations([]);
+                    setRequests([]);
+                    await refreshCsrf();
+                  })
+                }
+              >
+                Sign out
               </button>
             </div>
-          </>
-        ) : (
-          <div className="nav-r">
-            <span>
-              {user.firstName} · {label(user.role)}
-            </span>
-            <button
-              className="btn"
-              disabled={busy}
-              onClick={() =>
-                action(async () => {
-                  await api.post("/auth/logout");
-                  setUser(null);
-                  setApps([]);
-                  setDonations([]);
-                  setRequests([]);
-                  await refreshCsrf();
-                })
-              }
-            >
-              Sign out
-            </button>
-          </div>
-        )}
-      </header>
-      {!auth && (
+          )}
+        </header>
+      )}
+      {!auth && user?.role !== "ADMIN" && (
         <div className="dashboard" aria-live="polite">
           {error && (
             <p className="notice error" role="alert">
@@ -301,7 +405,6 @@ function App() {
             </p>
           )}
           {notice && <p className="notice success">{notice}</p>}
-          {!ready && <p>Connecting to Savora…</p>}
         </div>
       )}
       {!user ? (
@@ -316,6 +419,21 @@ function App() {
             }
           }}
           dangerouslySetInnerHTML={{ __html: landing }}
+        />
+      ) : user.role === "ADMIN" ? (
+        <AdminWorkspace
+          user={user}
+          onSignOut={async () => {
+            await api.post("/auth/logout");
+            setUser(null);
+            setApps([]);
+            setDonations([]);
+            setRequests([]);
+            setNotice("");
+            setError("");
+            window.location.hash = "";
+            await refreshCsrf();
+          }}
         />
       ) : (
         <main>
@@ -369,6 +487,38 @@ function App() {
             </div>
           </section>
           <div className="dashboard">
+            <div
+              className="workspace-stats"
+              aria-label="Your donation overview"
+            >
+              <div>
+                <span>
+                  {user.role === "DONOR"
+                    ? "Donations shared"
+                    : "Available listings"}
+                </span>
+                <strong>
+                  {user.role === "DONOR"
+                    ? donations.length
+                    : donations.filter((d) => d.status === "AVAILABLE").length}
+                </strong>
+              </div>
+              <div>
+                <span>Scheduled pickups</span>
+                <strong>
+                  {
+                    donations.filter((d) => d.status === "SCHEDULED_FOR_PICKUP")
+                      .length
+                  }
+                </strong>
+              </div>
+              <div>
+                <span>Completed handoffs</span>
+                <strong>
+                  {donations.filter((d) => d.status === "COMPLETED").length}
+                </strong>
+              </div>
+            </div>
             {user.role !== "ADMIN" && !user.verified && (
               <section className="panel">
                 <p className="eyebrow">Organization verification</p>
@@ -438,6 +588,7 @@ function App() {
                   listing before it becomes available.
                 </p>
                 <form className="form" onSubmit={donate}>
+                  <PhotoPicker />
                   <label>
                     Food name or description
                     <input name="title" required maxLength={200} />
@@ -533,57 +684,6 @@ function App() {
                 </form>
               </section>
             )}
-            {user.role === "ADMIN" && (
-              <section>
-                <h2>Organization applications</h2>
-                {apps.length === 0 && (
-                  <p className="notice">No applications yet.</p>
-                )}
-                {apps.map((a) => (
-                  <article className="panel" key={a.id}>
-                    <span className="status">{label(a.status)}</span>
-                    <h3>{a.organization}</h3>
-                    <p>
-                      {a.email} · {label(a.role || "")}
-                    </p>
-                    <div className="actions">
-                      <button
-                        className="btn"
-                        disabled={busy}
-                        onClick={() => download(a.id, "legal")}
-                      >
-                        Download legal document
-                      </button>
-                      <button
-                        className="btn"
-                        disabled={busy}
-                        onClick={() => download(a.id, "identity")}
-                      >
-                        Download valid ID
-                      </button>
-                    </div>
-                    {a.status === "PENDING" ? (
-                      <form className="form" onSubmit={(e) => review(a, e)}>
-                        <label>
-                          Review notes
-                          <textarea name="notes" required maxLength={1000} />
-                        </label>
-                        <Choice
-                          name="status"
-                          title="Decision"
-                          values={["APPROVED", "REJECTED"]}
-                        />
-                        <button className="btn lime" disabled={busy}>
-                          Save review
-                        </button>
-                      </form>
-                    ) : (
-                      <p>{a.notes}</p>
-                    )}
-                  </article>
-                ))}
-              </section>
-            )}
             <h2 className="wh">
               {user.role === "DONOR"
                 ? "Your donations"
@@ -597,82 +697,246 @@ function App() {
             <div className="grid">
               {donations.map((d) => (
                 <article className="fc" key={d.id}>
-                  <div className={"img c-" + d.category.replaceAll(" ", "-")}>
-                    <span className="tg">{label(d.status)}</span>
-                  </div>
+                  {d.hasPhoto ? (
+                    <PrivateMedia
+                      path={`/donations/${d.id}/photo`}
+                      title={d.title}
+                      compact
+                    />
+                  ) : (
+                    <div className="category-photo">
+                      <img
+                        src={`/images/${({ "Prepared meals": "meals", Bakery: "bakery", "Fresh produce": "produce", "Packaged food": "pantry" } as Record<string, string>)[d.category] || "produce"}.png`}
+                        alt=""
+                      />
+                      <span>
+                        Category image · actual food photo unavailable
+                      </span>
+                    </div>
+                  )}
                   <div className="fb">
                     <p className="k">
                       {d.category} · #{d.id}
                     </p>
-                    <h3>{d.title}</h3>
-                    <p>
-                      {d.quantity} {d.unit} · Food date: {d.expiryDate}
-                    </p>
-                    <p>{d.pickupLocation}</p>
-                    <p className="sub">
-                      Pickup: {new Date(d.pickupFrom).toLocaleString()} –{" "}
-                      {new Date(d.pickupUntil).toLocaleString()}
-                    </p>
-                    <p className="sub">
-                      {d.foodCondition} · {d.packagingCondition} packaging ·{" "}
-                      {d.storageInfo}
-                    </p>
-                    {d.notes && <p>{d.notes}</p>}
-                    {user.role === "RECIPIENT" && d.status === "AVAILABLE" && (
-                      <button
-                        className="btn lime"
-                        disabled={
-                          busy ||
-                          !user.verified ||
-                          requests.some((r) => r.donationId === d.id)
-                        }
-                        onClick={() => post(`/donations/${d.id}/request`)}
-                      >
-                        {!user.verified
-                          ? "Verification required"
-                          : requests.some((r) => r.donationId === d.id)
-                            ? "Request submitted"
-                            : "Request food"}
-                      </button>
-                    )}
-                    {user.role === "DONOR" &&
-                      d.status === "SCHEDULED_FOR_PICKUP" && (
-                        <button
-                          className="btn lime"
-                          disabled={busy}
-                          onClick={() => post(`/donations/${d.id}/complete`)}
-                        >
-                          Confirm pickup completed
-                        </button>
-                      )}
-                    {user.role === "ADMIN" && d.status === "SUBMITTED" && (
-                      <form
-                        className="form"
-                        onSubmit={(e) => {
-                          e.preventDefault();
-                          const data = new FormData(e.currentTarget);
-                          post(`/admin/donations/${d.id}/screen`, {
-                            approve: data.get("decision") === "approve",
-                            notes: data.get("notes"),
-                          });
-                        }}
-                      >
-                        <label>
-                          Screening notes
-                          <textarea name="notes" required maxLength={1000} />
-                        </label>
-                        <label>
-                          Decision
-                          <select name="decision">
-                            <option value="approve">Make available</option>
-                            <option value="reject">Reject listing</option>
-                          </select>
-                        </label>
-                        <button className="btn lime" disabled={busy}>
-                          Save screening
-                        </button>
-                      </form>
-                    )}
+                    <h3 title={d.title}>{d.title}</h3>
+                    <span className={`status status-${d.status.toLowerCase()}`}>
+                      {donationLabel(d.status)}
+                    </span>
+                    <dl className="donation-highlights">
+                      <div>
+                        <dt>Quantity</dt>
+                        <dd className="quantity-value">
+                          {d.quantity} <span>{d.unit}</span>
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>Pickup location</dt>
+                        <dd className="pickup-address">{d.pickupLocation}</dd>
+                      </div>
+                      <div>
+                        <dt>Pickup window</dt>
+                        <dd>{pickupWindow(d.pickupFrom, d.pickupUntil)}</dd>
+                      </div>
+                    </dl>
+                    <details className="donation-details">
+                      <summary>
+                        {user.role === "RECIPIENT" && d.status === "AVAILABLE"
+                          ? "View details & request"
+                          : d.recipientEmail
+                            ? "Details, chat & receipt"
+                            : "View donation details"}
+                        <span aria-hidden="true">+</span>
+                      </summary>
+                      <div className="donation-detail-content">
+                        <section className="donation-full-title">
+                          <h4>{d.title}</h4>
+                        </section>
+                        {d.cancellationReason && (
+                          <p className="cancellation-reason">
+                            {d.cancellationReason}
+                          </p>
+                        )}
+                        <section>
+                          <h4>Pickup details</h4>
+                          <dl className="detail-fields">
+                            <div>
+                              <dt>Location</dt>
+                              <dd>{d.pickupLocation}</dd>
+                            </div>
+                            <div>
+                              <dt>From</dt>
+                              <dd>
+                                {new Date(d.pickupFrom).toLocaleString(
+                                  undefined,
+                                  { dateStyle: "medium", timeStyle: "short" },
+                                )}
+                              </dd>
+                            </div>
+                            <div>
+                              <dt>Until</dt>
+                              <dd>
+                                {new Date(d.pickupUntil).toLocaleString(
+                                  undefined,
+                                  { dateStyle: "medium", timeStyle: "short" },
+                                )}
+                              </dd>
+                            </div>
+                            {d.recipientEmail && (
+                              <>
+                                <div>
+                                  <dt>Collection</dt>
+                                  <dd>
+                                    {d.collectionMethod === "RECIPIENT_COURIER"
+                                      ? "Recipient-arranged courier"
+                                      : "Recipient pickup"}
+                                  </dd>
+                                </div>
+                                <div>
+                                  <dt>Contact</dt>
+                                  <dd>
+                                    {user.role === "DONOR"
+                                      ? d.recipientEmail
+                                      : d.donorEmail}
+                                  </dd>
+                                </div>
+                              </>
+                            )}
+                          </dl>
+                        </section>
+                        <section>
+                          <h4>Food & storage</h4>
+                          <dl className="detail-fields">
+                            <div>
+                              <dt>
+                                {d.dateType === "EXPIRATION"
+                                  ? "Use by"
+                                  : "Best before"}
+                              </dt>
+                              <dd>
+                                {new Date(
+                                  d.expiryDate + "T00:00:00",
+                                ).toLocaleDateString(undefined, {
+                                  dateStyle: "medium",
+                                })}
+                              </dd>
+                            </div>
+                            <div>
+                              <dt>Condition</dt>
+                              <dd>{d.foodCondition}</dd>
+                            </div>
+                            <div>
+                              <dt>Packaging</dt>
+                              <dd>{d.packagingCondition}</dd>
+                            </div>
+                            <div>
+                              <dt>Storage</dt>
+                              <dd>{d.storageInfo}</dd>
+                            </div>
+                          </dl>
+                        </section>
+                        {d.notes && (
+                          <section>
+                            <h4>Donor notes</h4>
+                            <p className="donor-notes">{d.notes}</p>
+                          </section>
+                        )}
+                        {user.role === "RECIPIENT" &&
+                          d.status === "AVAILABLE" &&
+                          (!user.verified ? (
+                            <p className="notice">
+                              Verification is required before requesting food.
+                            </p>
+                          ) : requests.some((r) => r.donationId === d.id) ? (
+                            <p className="notice">Request submitted</p>
+                          ) : (
+                            <form
+                              className="request-collection"
+                              onSubmit={(e) => {
+                                e.preventDefault();
+                                const f = new FormData(e.currentTarget);
+                                post(`/donations/${d.id}/request`, {
+                                  method: f.get("method"),
+                                  notes: f.get("collectionNotes"),
+                                });
+                              }}
+                            >
+                              <SelectField
+                                name="method"
+                                label="How will you collect?"
+                                defaultValue="RECIPIENT_PICKUP"
+                                options={[
+                                  {
+                                    value: "RECIPIENT_PICKUP",
+                                    label: "I will arrange pickup",
+                                  },
+                                  {
+                                    value: "RECIPIENT_COURIER",
+                                    label: "I will arrange my own courier",
+                                  },
+                                ]}
+                              />
+                              <label>
+                                Collection notes (optional)
+                                <textarea
+                                  name="collectionNotes"
+                                  rows={2}
+                                  maxLength={500}
+                                  placeholder="Who will collect, contact details or pickup arrangements"
+                                />
+                              </label>
+
+                              <button className="btn lime" disabled={busy}>
+                                Request food
+                              </button>
+                            </form>
+                          ))}
+                        {user.role === "DONOR" &&
+                          d.status === "SCHEDULED_FOR_PICKUP" &&
+                          !d.handoverAt && (
+                            <button
+                              className="btn lime"
+                              disabled={busy}
+                              onClick={() =>
+                                post(`/donations/${d.id}/handover`)
+                              }
+                            >
+                              Mark as handed over
+                            </button>
+                          )}
+                        {d.recipientEmail &&
+                          [
+                            "SCHEDULED_FOR_PICKUP",
+                            "COMPLETED",
+                            "CANCELLED",
+                          ].includes(d.status) && (
+                            <ChatPanel donationId={d.id} userId={user.id} />
+                          )}
+                        {["SCHEDULED_FOR_PICKUP", "COMPLETED"].includes(
+                          d.status,
+                        ) && (
+                          <>
+                            {d.handoverAt && (
+                              <p className="handover-confirmed">
+                                Pickup confirmed by donor ·{" "}
+                                {new Date(d.handoverAt).toLocaleString(
+                                  undefined,
+                                  {
+                                    dateStyle: "medium",
+                                    timeStyle: "short",
+                                  },
+                                )}
+                              </p>
+                            )}
+                            <ReceiptPanel
+                              key={`${d.id}-${d.receiptOutcome}-${d.receiptReviewStatus}`}
+                              donation={d}
+                              recipient={user.role === "RECIPIENT"}
+                              onSaved={() => load(user)}
+                            />
+                          </>
+                        )}
+                      </div>
+                    </details>
                   </div>
                 </article>
               ))}
@@ -687,7 +951,15 @@ function App() {
                     <div className="rq" key={r.id}>
                       <p>
                         Donation #{r.donationId} · {r.organization}
-                        <small>{label(r.status)}</small>
+                        <small>
+                          {label(r.status)} ·{" "}
+                          {r.collectionMethod === "RECIPIENT_COURIER"
+                            ? "Recipient-arranged courier"
+                            : "Recipient pickup"}
+                        </small>
+                        <small>
+                          {r.email} {r.collectionNotes}
+                        </small>
                       </p>
                       {user.role === "DONOR" && r.status === "PENDING" && (
                         <button
@@ -706,7 +978,19 @@ function App() {
           </div>
         </main>
       )}
-      {auth && (
+      {recovery && (
+        <PasswordRecovery
+          onLogin={() => {
+            setRecovery(false);
+            setUser(null);
+            open("login");
+          }}
+          onClose={() => {
+            setRecovery(false);
+          }}
+        />
+      )}
+      {auth && !recovery && (
         <div
           className="modal"
           ref={modal}
@@ -759,19 +1043,16 @@ function App() {
                       />
                     </label>
                   </div>
-                  <label>
-                    I want to
-                    <select
-                      name="role"
-                      value={role}
-                      onChange={(e) => setRole(e.target.value)}
-                    >
-                      <option value="DONOR">Donate food</option>
-                      <option value="RECIPIENT">
-                        Receive food for my organization
-                      </option>
-                    </select>
-                  </label>
+                  <SelectField
+                    name="role"
+                    label="I want to"
+                    value={role}
+                    onChange={setRole}
+                    options={[
+                      { value: "DONOR", label: "Register as a donor" },
+                      { value: "RECIPIENT", label: "Register as a recipient" },
+                    ]}
+                  />
                 </>
               )}
               <label>
@@ -784,19 +1065,27 @@ function App() {
                   autoComplete="email"
                 />
               </label>
-              <label>
-                Password
-                <input
-                  name="password"
-                  type="password"
-                  required
-                  minLength={auth === "register" ? 12 : 1}
-                  maxLength={72}
-                  autoComplete={
-                    auth === "login" ? "current-password" : "new-password"
-                  }
-                />
-              </label>
+              <PasswordField
+                key={auth}
+                minLength={auth === "register" ? 12 : 1}
+                autoComplete={
+                  auth === "login" ? "current-password" : "new-password"
+                }
+              />
+              {auth === "login" && (
+                <button
+                  type="button"
+                  className="link forgot-password"
+                  onClick={() => {
+                    setAuth(null);
+                    setError("");
+                    setNotice("");
+                    setRecovery(true);
+                  }}
+                >
+                  Forgot password?
+                </button>
+              )}
               {auth === "register" && (
                 <p className="sub">Use at least 12 characters.</p>
               )}
@@ -843,19 +1132,15 @@ function Choice({
   values: string[];
 }) {
   return (
-    <label>
-      {title}
-      <select name={name} required defaultValue="">
-        <option value="" disabled>
-          Select {title.toLowerCase()}
-        </option>
-        {values.map((v) => (
-          <option value={v} key={v}>
-            {v.includes("_") ? label(v) : v}
-          </option>
-        ))}
-      </select>
-    </label>
+    <SelectField
+      name={name}
+      label={title}
+      placeholder={`Select ${title.toLowerCase()}`}
+      options={values.map((v) => ({
+        value: v,
+        label: v.includes("_") ? label(v) : v,
+      }))}
+    />
   );
 }
 export default App;

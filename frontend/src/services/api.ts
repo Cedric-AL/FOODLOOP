@@ -5,7 +5,7 @@ const api = axios.create({
 });
 let csrf = "";
 export async function refreshCsrf() {
-  csrf = (await api.get("/auth/csrf")).data.token;
+  csrf = (await api.get("/auth/csrf", { timeout: 15000 })).data.token;
 }
 api.interceptors.request.use((config) => {
   if (config.method !== "get") config.headers["X-CSRF-TOKEN"] = csrf;
